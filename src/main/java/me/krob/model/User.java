@@ -1,19 +1,30 @@
 package me.krob.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("users")
-@AllArgsConstructor
 @Getter
 @Setter
 public class User {
 
     @Id
-    private int id;
+    private ObjectId _id;
 
-    private String forename, surname;
+    private String emailAddress;
+    private String forename;
+    private String surname;
+
+    public User() {
+
+    }
+
+    public User(String emailAddress, String forename, String surname) {
+        this.emailAddress = emailAddress;
+        this.forename = forename;
+        this.surname = surname;
+    }
 }
