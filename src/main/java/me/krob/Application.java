@@ -1,8 +1,5 @@
 package me.krob;
 
-import me.krob.model.User;
-import me.krob.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,14 +9,10 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 @EnableMongoRepositories
 public class Application implements CommandLineRunner {
 
-    @Autowired
-    public UserRepository userRepository;
-
     public static void main(String[] args) {
         SpringApplication.run(Application.class, args);
     }
 
-    @Override
     public void run(String... args) {
 
     }
