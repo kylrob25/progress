@@ -21,9 +21,14 @@ public class TrainerService {
     public Trainer update(String trainerId, Trainer trainer) {
         return trainerRepository.findById(trainerId)
                 .map(t -> {
+
                     t.setForename(trainer.getForename());
                     t.setSurname(trainer.getSurname());
                     t.setEmail(trainer.getEmail());
+                    t.setCost(trainer.getCost());
+                    t.setLocation(trainer.getLocation());
+                    t.setSpecialisation(trainer.getSpecialisation());
+                    t.setClientIds(trainer.getClientIds());
                     return trainerRepository.save(t);
                 })
                 .orElseGet(() -> {
