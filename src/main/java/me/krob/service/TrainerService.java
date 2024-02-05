@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -21,14 +22,27 @@ public class TrainerService {
     public Trainer update(String trainerId, Trainer trainer) {
         return trainerRepository.findById(trainerId)
                 .map(t -> {
-
-                    t.setForename(trainer.getForename());
-                    t.setSurname(trainer.getSurname());
-                    t.setEmail(trainer.getEmail());
-                    t.setCost(trainer.getCost());
-                    t.setLocation(trainer.getLocation());
-                    t.setSpecialisation(trainer.getSpecialisation());
-                    t.setClientIds(trainer.getClientIds());
+                    if (Objects.nonNull(trainer.getForename())) {
+                        t.setForename(trainer.getForename());
+                    }
+                    if(Objects.nonNull(trainer.getSurname())) {
+                        t.setSurname(trainer.getSurname());
+                    }
+                    if (Objects.nonNull(trainer.getEmail())) {
+                        t.setEmail(trainer.getEmail());
+                    }
+                    if (Objects.nonNull(trainer.getCost())) {
+                        t.setCost(trainer.getCost());
+                    }
+                    if (Objects.nonNull(trainer.getLocation())) {
+                        t.setLocation(t.getLocation());
+                    }
+                    if (Objects.nonNull(trainer.getSpecialisation())) {
+                        t.setSpecialisation(trainer.getSpecialisation());
+                    }
+                    if (Objects.nonNull(trainer.getClientIds())) {
+                        t.setClientIds(trainer.getClientIds());
+                    }
                     return trainerRepository.save(t);
                 })
                 .orElseGet(() -> {

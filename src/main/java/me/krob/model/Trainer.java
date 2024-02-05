@@ -24,5 +24,5 @@ public class Trainer {
 
     private String specialisation;
     private String location;
-    private double cost;
+    private Double cost;
 }
