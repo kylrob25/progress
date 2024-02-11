@@ -22,25 +22,25 @@ public class TrainerService {
     public Trainer update(String trainerId, Trainer trainer) {
         return trainerRepository.findById(trainerId)
                 .map(t -> {
-                    if (Objects.equals(trainer.getForename(), t.getForename())) {
+                    if (!Objects.equals(trainer.getForename(), t.getForename())) {
                         t.setForename(trainer.getForename());
                     }
-                    if(Objects.equals(trainer.getSurname(), t.getSurname())) {
+                    if (!Objects.equals(trainer.getSurname(), t.getSurname())) {
                         t.setSurname(trainer.getSurname());
                     }
-                    if (Objects.equals(trainer.getEmail(), t.getEmail())) {
+                    if (!Objects.equals(trainer.getEmail(), t.getEmail())) {
                         t.setEmail(trainer.getEmail());
                     }
-                    if (Objects.equals(trainer.getCost(), t.getCost())) {
+                    if (!Objects.equals(trainer.getCost(), t.getCost())) {
                         t.setCost(trainer.getCost());
                     }
-                    if (Objects.equals(trainer.getLocation(), t.getLocation())) {
+                    if (!Objects.equals(trainer.getLocation(), t.getLocation())) {
                         t.setLocation(t.getLocation());
                     }
-                    if (Objects.equals(trainer.getSpecialisation(), t.getSpecialisation())) {
+                    if (!Objects.equals(trainer.getSpecialisation(), t.getSpecialisation())) {
                         t.setSpecialisation(trainer.getSpecialisation());
                     }
-                    if (Objects.equals(trainer.getClientIds(), t.getClientIds())) {
+                    if (!Objects.equals(trainer.getClientIds(), t.getClientIds())) {
                         t.setClientIds(trainer.getClientIds());
                     }
                     return trainerRepository.save(t);
