@@ -10,15 +10,10 @@ import java.util.List;
 
 @Document(collection = "trainers")
 @Getter @Setter @AllArgsConstructor
-public class Trainer {
+public class Trainer extends User {
 
     @Id
     private String id;
-
-    private String forename;
-    private String surname;
-    private String email;
-    private String password;
 
     private List<String> clientIds;
 
