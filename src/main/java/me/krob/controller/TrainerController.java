@@ -2,7 +2,9 @@ package me.krob.controller;
 
 import me.krob.model.Trainer;
 import me.krob.model.User;
+import me.krob.repository.UserRepository;
 import me.krob.service.TrainerService;
+import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,13 +18,18 @@ import java.util.List;
 public class TrainerController {
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private TrainerService trainerService;
 
     @PostMapping
     public ResponseEntity<Trainer> create(@RequestBody User user) {
-        // TODO: Validate user
-        Trainer created = trainerService.create(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        if (user.getId() != null && userService.exists(user.getId())) {
+            Trainer created = trainerService.create(user);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @DeleteMapping("/{trainerId}")

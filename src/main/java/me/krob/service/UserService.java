@@ -49,6 +49,10 @@ public class UserService {
         userRepository.deleteById(userId);
     }
 
+    public boolean exists(String userId) {
+        return userRepository.existsById(userId);
+    }
+
     public List<User> getAll() {
         return userRepository.findAll();
     }
