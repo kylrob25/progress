@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
+
 @Component
 public class EntryPoint implements AuthenticationEntryPoint {
     private static final Logger LOGGER = LoggerFactory.getLogger(EntryPoint.class);

@@ -18,10 +18,10 @@ import java.util.Date;
 public class JwtUtils {
     private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
-    @Value("${progress.jwt.secret")
+    @Value("${progress.jwt.secret}")
     private String secret;
 
-    @Value("${progress.jwt.expiration")
+    @Value("${progress.jwt.expiration}")
     private int expiration;
 
     public String generate(Authentication authentication) {
