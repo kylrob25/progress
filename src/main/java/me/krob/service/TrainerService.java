@@ -15,12 +15,9 @@ public class TrainerService {
     @Autowired
     private TrainerRepository trainerRepository;
 
-    public Trainer create(Trainer trainer, User user) {
+    public Trainer create(User user) {
+        Trainer trainer = new Trainer();
         trainer.setUserId(user.getId());
-        return trainerRepository.save(trainer);
-    }
-
-    public Trainer create(Trainer trainer) {
         return trainerRepository.save(trainer);
     }
 
