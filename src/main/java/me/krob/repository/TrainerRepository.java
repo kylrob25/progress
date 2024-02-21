@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface TrainerRepository extends MongoRepository<Trainer, String> {
     Optional<Trainer> findByUserId(String userId);
+
+    boolean existsByUserId(String userId);
 }

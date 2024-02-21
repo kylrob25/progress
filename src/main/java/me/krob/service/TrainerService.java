@@ -20,6 +20,9 @@ public class TrainerService {
     public Trainer create(User user) {
         Trainer trainer = new Trainer();
         trainer.setUserId(user.getId());
+        trainer.setUsername(user.getUsername());
+        trainer.setForename(user.getForename());
+        trainer.setSurname(user.getSurname());
         return trainerRepository.save(trainer);
     }
 
@@ -57,6 +60,10 @@ public class TrainerService {
 
     public void delete(String trainerId) {
         trainerRepository.deleteById(trainerId);
+    }
+
+    public boolean existsByUserId(String userId) {
+        return trainerRepository.existsById(userId);
     }
 
     public List<Trainer> getAll() {

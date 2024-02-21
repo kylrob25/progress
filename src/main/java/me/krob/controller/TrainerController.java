@@ -24,7 +24,9 @@ public class TrainerController {
 
     @PostMapping
     public ResponseEntity<Trainer> create(@RequestBody User user) {
-        if (user.getId() != null && userService.exists(user.getId())) {
+        if (user.getId() != null &&
+                trainerService.existsByUserId(user.getId()) &&
+                userService.exists(user.getId())) {
             Trainer created = trainerService.create(user);
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         }
