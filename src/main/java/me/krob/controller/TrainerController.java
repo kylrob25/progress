@@ -31,6 +31,12 @@ public class TrainerController {
         return ResponseEntity.notFound().build();
     }
 
+    @PutMapping("/{trainerId}")
+    public ResponseEntity<Trainer> update(@PathVariable String trainerId, @RequestBody Trainer trainer) {
+        Trainer updated = trainerService.update(trainerId, trainer);
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+    }
+
     @DeleteMapping("/{trainerId}")
     public ResponseEntity<?> delete(@PathVariable String trainerId) {
         trainerService.delete(trainerId);
@@ -45,6 +51,13 @@ public class TrainerController {
     @GetMapping("/{trainerId}")
     public ResponseEntity<Trainer> getById(@PathVariable String trainerId) {
         return trainerService.getById(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<Trainer> getByUserId(@PathVariable String userId) {
+        return trainerService.getByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

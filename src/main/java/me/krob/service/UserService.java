@@ -5,6 +5,7 @@ import me.krob.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,20 +23,23 @@ public class UserService {
     public User update(String userId, User user) {
         return userRepository.findById(userId)
                 .map(t -> {
-                    if (!Objects.equals(user.getUsername(), t.getUsername())) {
+                    if (user.getUsername() != null && !Objects.equals(user.getUsername(), t.getUsername())) {
                         t.setUsername(user.getUsername());
                     }
-                    if (!Objects.equals(user.getForename(), t.getForename())) {
+                    if (user.getForename() != null && !Objects.equals(user.getForename(), t.getForename())) {
                         t.setForename(user.getForename());
                     }
-                    if (!Objects.equals(user.getSurname(), t.getSurname())) {
+                    if (user.getSurname() != null && !Objects.equals(user.getSurname(), t.getSurname())) {
                         t.setSurname(user.getSurname());
                     }
-                    if (!Objects.equals(user.getEmail(), t.getEmail())) {
+                    if (user.getEmail() != null && !Objects.equals(user.getEmail(), t.getEmail())) {
                         t.setEmail(user.getEmail());
                     }
-                    if (!Objects.equals(user.getPassword(), t.getPassword())) {
+                    if (user.getPassword() != null && !Objects.equals(user.getPassword(), t.getPassword())) {
                         t.setPassword(user.getPassword());
+                    }
+                    if (user.getRoles() != null && !Arrays.equals(user.getRoles(), t.getRoles())) {
+                        t.setRoles(user.getRoles());
                     }
                     return userRepository.save(t);
                 })

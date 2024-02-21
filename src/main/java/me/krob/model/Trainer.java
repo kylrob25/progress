@@ -5,8 +5,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
-
 @Document(collection = "trainers")
 @Getter
 @Setter
@@ -17,9 +15,13 @@ public class Trainer {
 
     private String userId;
 
-    private double cost;
+    private String username;
+    private String forename;
+    private String surname;
+
+    private Double cost;
     private String location;
     private String specialization;
 
-    private List<String> clientIds;
+    private String[] clientIds;
 }

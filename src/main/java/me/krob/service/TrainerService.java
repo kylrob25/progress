@@ -6,6 +6,7 @@ import me.krob.repository.TrainerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,16 +26,25 @@ public class TrainerService {
     public Trainer update(String trainerId, Trainer trainer) {
         return trainerRepository.findById(trainerId)
                 .map(t -> {
-                    if (!Objects.equals(trainer.getCost(), t.getCost())) {
+                    if (trainer.getUsername() != null && !Objects.equals(trainer.getUsername(), t.getUsername())) {
+                        t.setUsername(trainer.getUsername());
+                    }
+                    if (trainer.getForename() != null && !Objects.equals(trainer.getForename(), t.getForename())) {
+                        t.setForename(trainer.getForename());
+                    }
+                    if (trainer.getSurname() != null && !Objects.equals(trainer.getSurname(), t.getSurname())) {
+                        t.setSurname(trainer.getSurname());
+                    }
+                    if (trainer.getCost() != null && !Objects.equals(trainer.getCost(), t.getCost())) {
                         t.setCost(trainer.getCost());
                     }
-                    if (!Objects.equals(trainer.getLocation(), t.getLocation())) {
+                    if (trainer.getLocation() != null && !Objects.equals(trainer.getLocation(), t.getLocation())) {
                         t.setLocation(trainer.getLocation());
                     }
-                    if (!Objects.equals(trainer.getSpecialization(), t.getSpecialization())) {
+                    if (trainer.getSpecialization() != null && !Objects.equals(trainer.getSpecialization(), t.getSpecialization())) {
                         t.setSpecialization(trainer.getSpecialization());
                     }
-                    if (!Objects.equals(trainer.getClientIds(), t.getClientIds())) {
+                    if (trainer.getClientIds() != null && !Arrays.equals(trainer.getClientIds(), t.getClientIds())) {
                         t.setClientIds(trainer.getClientIds());
                     }
                     return trainerRepository.save(t);
