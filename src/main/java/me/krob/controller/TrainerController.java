@@ -2,7 +2,6 @@ package me.krob.controller;
 
 import me.krob.model.Trainer;
 import me.krob.model.User;
-import me.krob.repository.UserRepository;
 import me.krob.service.TrainerService;
 import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.List;
 
 @Document(collection = "trainers")
-@Getter @Setter
+@Getter
+@Setter
 public class Trainer {
 
     @Id
