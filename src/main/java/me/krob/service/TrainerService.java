@@ -63,7 +63,7 @@ public class TrainerService {
     }
 
     public boolean existsByUserId(String userId) {
-        return trainerRepository.existsById(userId);
+        return trainerRepository.existsByUserId(userId);
     }
 
     public List<Trainer> getAll() {
