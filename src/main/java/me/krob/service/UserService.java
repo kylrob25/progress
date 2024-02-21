@@ -22,6 +22,9 @@ public class UserService {
     public User update(String userId, User user) {
         return userRepository.findById(userId)
                 .map(t -> {
+                    if (!Objects.equals(user.getUsername(), t.getUsername())) {
+                        t.setUsername(user.getUsername());
+                    }
                     if (!Objects.equals(user.getForename(), t.getForename())) {
                         t.setForename(user.getForename());
                     }
@@ -30,6 +33,9 @@ public class UserService {
                     }
                     if (!Objects.equals(user.getEmail(), t.getEmail())) {
                         t.setEmail(user.getEmail());
+                    }
+                    if (!Objects.equals(user.getPassword(), t.getPassword())) {
+                        t.setPassword(user.getPassword());
                     }
                     return userRepository.save(t);
                 })
