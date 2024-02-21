@@ -38,6 +38,9 @@ public class TrainerService {
                     if (trainer.getSurname() != null && !Objects.equals(trainer.getSurname(), t.getSurname())) {
                         t.setSurname(trainer.getSurname());
                     }
+                    if (trainer.getPictureUrl() != null && !Objects.equals(trainer.getPictureUrl(), t.getPictureUrl())) {
+                        t.setPictureUrl(trainer.getPictureUrl());
+                    }
                     if (trainer.getCost() != null && !Objects.equals(trainer.getCost(), t.getCost())) {
                         t.setCost(trainer.getCost());
                     }

@@ -19,6 +19,8 @@ public class Trainer {
     private String forename;
     private String surname;
 
+    private String pictureUrl;
+
     private Double cost;
     private String location;
     private String specialization;

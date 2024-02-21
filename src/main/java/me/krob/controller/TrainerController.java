@@ -56,7 +56,14 @@ public class TrainerController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/id/{trainerId}")
+    public ResponseEntity<Trainer> getById(@PathVariable String trainerId) {
+        return trainerService.getById(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/userId/{userId}")
     public ResponseEntity<Trainer> getByUserId(@PathVariable String userId) {
         return trainerService.getByUserId(userId)
                 .map(ResponseEntity::ok)
