@@ -77,4 +77,8 @@ public class TrainerService {
     public Optional<Trainer> getByUserId(String userId) {
         return trainerRepository.findByUserId(userId);
     }
+
+    public Optional<Trainer> getByUsername(String trainerId) {
+        return trainerRepository.findByUsername(trainerId);
+    }
 }
