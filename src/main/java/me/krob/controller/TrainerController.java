@@ -23,6 +23,17 @@ public class TrainerController {
     private TrainerService trainerService;
 
     @PostMapping
+    public ResponseEntity<Trainer> create(@RequestBody Trainer trainer) {
+        if (trainer.getUserId() != null & userService.exists(trainer.getUserId()) &&
+                !trainerService.existsByUserId(trainer.getUserId())) {
+            Trainer created = trainerService.create(trainer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        }
+        return ResponseEntity.notFound().build();
+    }
+
+    /*
+    @PostMapping
     public ResponseEntity<Trainer> create(@RequestBody User user) {
         if (user.getId() != null & userService.exists(user.getId()) &&
                 !trainerService.existsByUserId(user.getId())) {
@@ -30,7 +41,7 @@ public class TrainerController {
             return ResponseEntity.status(HttpStatus.CREATED).body(created);
         }
         return ResponseEntity.notFound().build();
-    }
+    }*/
 
     @PutMapping("/{trainerId}")
     public ResponseEntity<Trainer> update(@PathVariable String trainerId, @RequestBody Trainer trainer) {
@@ -44,21 +55,27 @@ public class TrainerController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/userId/{userId}")
+    public ResponseEntity<?> deleteByUserId(@PathVariable String userId) {
+        trainerService.deleteByUserId(userId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public List<Trainer> getAll() {
         return trainerService.getAll();
     }
 
-    @GetMapping("/{username}")
-    public ResponseEntity<Trainer> getByUsername(@PathVariable String username) {
-        return trainerService.getByUsername(username)
+    @GetMapping("/{trainerId}")
+    public ResponseEntity<Trainer> getById(@PathVariable String trainerId) {
+        return trainerService.getById(trainerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/id/{trainerId}")
-    public ResponseEntity<Trainer> getById(@PathVariable String trainerId) {
-        return trainerService.getById(trainerId)
+    @GetMapping("/username/{username}")
+    public ResponseEntity<Trainer> getByUsername(@PathVariable String username) {
+        return trainerService.getByUsername(username)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

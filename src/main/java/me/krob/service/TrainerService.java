@@ -17,13 +17,29 @@ public class TrainerService {
     @Autowired
     private TrainerRepository trainerRepository;
 
-    public Trainer create(User user) {
-        Trainer trainer = new Trainer();
-        trainer.setUserId(user.getId());
-        trainer.setUsername(user.getUsername());
-        trainer.setForename(user.getForename());
-        trainer.setSurname(user.getSurname());
+    public Trainer create(Trainer trainer) {
         return trainerRepository.save(trainer);
+    }
+
+    public Trainer link(String trainerId, User user) {
+        return trainerRepository.findById(trainerId)
+                .map(t -> {
+                    link(t, user);
+                    return trainerRepository.save(t);
+                }).orElseGet(() -> trainerRepository.save(link(new Trainer(), user)));
+    }
+
+    private Trainer link(Trainer trainer, User user) {
+        if (user.getForename() != null) {
+            trainer.setForename(user.getForename());
+        }
+        if (user.getSurname() != null) {
+            trainer.setSurname(user.getSurname());
+        }
+        if (user.getUsername() != null) {
+            trainer.setUsername(user.getUsername());
+        }
+        return trainer;
     }
 
     public Trainer update(String trainerId, Trainer trainer) {
@@ -63,6 +79,10 @@ public class TrainerService {
 
     public void delete(String trainerId) {
         trainerRepository.deleteById(trainerId);
+    }
+
+    public void deleteByUserId(String userId) {
+        trainerRepository.deleteByUserId(userId);
     }
 
     public boolean existsByUserId(String userId) {

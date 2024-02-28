@@ -10,4 +10,6 @@ public interface TrainerRepository extends MongoRepository<Trainer, String> {
     Optional<Trainer> findByUsername(String username);
 
     boolean existsByUserId(String userId);
+
+    void deleteByUserId(String userId);
 }
