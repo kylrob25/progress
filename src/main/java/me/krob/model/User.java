@@ -2,6 +2,7 @@ package me.krob.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.krob.model.auth.RegisterRequest;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -19,4 +20,12 @@ public class User {
     private String password;
 
     private Role[] roles;
+
+    public User(RegisterRequest registerRequest){
+        username = registerRequest.getUsername();
+        forename = registerRequest.getForename();
+        surname = registerRequest.getSurname();
+        email = registerRequest.getEmail();
+        roles = new Role[] {Role.USER};
+    }
 }
