@@ -20,12 +20,4 @@ public class User {
     private String password;
 
     private Role[] roles;
-
-    public User(RegisterRequest registerRequest){
-        username = registerRequest.getUsername();
-        forename = registerRequest.getForename();
-        surname = registerRequest.getSurname();
-        email = registerRequest.getEmail();
-        roles = new Role[] {Role.USER};
-    }
 }

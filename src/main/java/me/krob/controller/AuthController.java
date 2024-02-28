@@ -6,6 +6,7 @@ import me.krob.model.auth.LoginRequest;
 import me.krob.model.auth.LoginResponse;
 import me.krob.model.auth.RegisterRequest;
 import me.krob.repository.UserRepository;
+import me.krob.security.service.UserDetailsImpl;
 import me.krob.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
-import java.lang.reflect.Array;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
@@ -35,14 +34,14 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    @PostMapping("/login)")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = (User) authentication.getPrincipal();
+        UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
         String token = jwtUtils.generate(authentication);
 
         return ResponseEntity.ok(new LoginResponse(
@@ -64,7 +63,12 @@ public class AuthController {
             return ResponseEntity.status(409).build();
         }
 
-        User user = new User(registerRequest);
+        User user = new User();
+        user.setUsername(registerRequest.getUsername());
+        user.setForename(registerRequest.getForename());
+        user.setSurname(registerRequest.getSurname());
+        user.setEmail(registerRequest.getEmail());
+        user.setRoles(new Role[] {Role.USER});
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
 
         userRepository.save(user);
