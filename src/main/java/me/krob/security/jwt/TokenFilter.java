@@ -16,6 +16,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 @Component
 public class TokenFilter extends OncePerRequestFilter {
@@ -39,7 +40,7 @@ public class TokenFilter extends OncePerRequestFilter {
                 try {
                     username = jwtUtils.extract(token);
                 } catch (Exception exception) {
-                    // Nothing yet
+                    Logger.getGlobal().info(exception.getMessage());
                 }
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);

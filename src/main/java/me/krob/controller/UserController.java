@@ -1,10 +1,14 @@
 package me.krob.controller;
 
 import me.krob.model.User;
+import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,6 +17,11 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
+
+    /*
+    Use @PreAuthorize for all of these methods as only admins should be able to do these
+    I think?
+     */
 
     @Autowired
     private UserService userService;
@@ -38,6 +47,19 @@ public class UserController {
     @GetMapping
     public List<User> getAll() {
         return userService.getAll();
+    }
+
+    @GetMapping("/token")
+    public ResponseEntity<UserDetailsImpl> getWithToken() {
+        Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        try {
+            UserDetailsImpl userDetails = (UserDetailsImpl) obj;
+            return ResponseEntity.ok(userDetails);
+        } catch (Throwable throwable) {
+            ResponseEntity.status(409).build();
+        }
+        return ResponseEntity.notFound().build();
     }
 
     @GetMapping("/{userId}")
