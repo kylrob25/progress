@@ -54,12 +54,6 @@ public class UserService {
                 });
     }
 
-    public void addRoleToUser(String userId, Role role) {
-        Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().addToSet("roles", role);
-        mongoTemplate.updateFirst(query, update, User.class);
-    }
-
     public void delete(String userId) {
         userRepository.deleteById(userId);
     }
@@ -74,5 +68,23 @@ public class UserService {
 
     public Optional<User> getById(String userId) {
         return userRepository.findById(userId);
+    }
+
+    /** Roles **/
+
+    public void addRole(String userId, Role role) {
+        Query query = new Query(Criteria.where("id").is(userId));
+        Update update = new Update().addToSet("roles", role);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void removeRole(String userId, Role role) {
+        Query query = new Query(Criteria.where("id").is(userId));
+        Update update = new Update().pull("roles", role);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public Optional<Boolean> hasRole(String userId, Role role) {
+        return userRepository.findById(userId).map(user -> user.getRoles().contains(role));
     }
 }

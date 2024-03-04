@@ -4,6 +4,7 @@ import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.UserService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -68,9 +69,20 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/{userId}/roles/{role}/exists")
+    public ResponseEntity<?> hasRole(@PathVariable String userId, @PathVariable Role role) {
+        return userService.hasRole(userId, role).map(ResponseEntity::ok).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @PutMapping("/{userId}/roles")
-    public ResponseEntity<User> addRoleToUser(@PathVariable String userId, @RequestBody Role role) {
-        userService.addRoleToUser(userId, role);
+    public ResponseEntity<User> addRole(@PathVariable String userId, @RequestBody Role role) {
+        userService.addRole(userId, role);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{userId}/roles/{role}")
+    public ResponseEntity<User> removeRole(@PathVariable String userId, @PathVariable Role role) {
+        userService.removeRole(userId, role);
         return ResponseEntity.ok().build();
     }
 }
