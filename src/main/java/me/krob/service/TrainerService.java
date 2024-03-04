@@ -1,9 +1,14 @@
 package me.krob.service;
 
+import me.krob.model.Role;
 import me.krob.model.Trainer;
 import me.krob.model.User;
 import me.krob.repository.TrainerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -15,31 +20,13 @@ import java.util.Optional;
 public class TrainerService {
 
     @Autowired
+    private MongoTemplate mongoTemplate;
+
+    @Autowired
     private TrainerRepository trainerRepository;
 
     public Trainer create(Trainer trainer) {
         return trainerRepository.save(trainer);
-    }
-
-    public Trainer link(String trainerId, User user) {
-        return trainerRepository.findById(trainerId)
-                .map(t -> {
-                    link(t, user);
-                    return trainerRepository.save(t);
-                }).orElseGet(() -> trainerRepository.save(link(new Trainer(), user)));
-    }
-
-    private Trainer link(Trainer trainer, User user) {
-        if (user.getForename() != null) {
-            trainer.setForename(user.getForename());
-        }
-        if (user.getSurname() != null) {
-            trainer.setSurname(user.getSurname());
-        }
-        if (user.getUsername() != null) {
-            trainer.setUsername(user.getUsername());
-        }
-        return trainer;
     }
 
     public Trainer update(String trainerId, Trainer trainer) {
@@ -65,9 +52,6 @@ public class TrainerService {
                     }
                     if (trainer.getSpecialization() != null && !Objects.equals(trainer.getSpecialization(), t.getSpecialization())) {
                         t.setSpecialization(trainer.getSpecialization());
-                    }
-                    if (trainer.getClientIds() != null && !Arrays.equals(trainer.getClientIds(), t.getClientIds())) {
-                        t.setClientIds(trainer.getClientIds());
                     }
                     return trainerRepository.save(t);
                 })
@@ -103,5 +87,23 @@ public class TrainerService {
 
     public Optional<Trainer> getByUsername(String trainerId) {
         return trainerRepository.findByUsername(trainerId);
+    }
+
+    /** Client Ids **/
+
+    public void addClientId(String trainerId, String clientId) {
+        Query query = new Query(Criteria.where("id").is(trainerId));
+        Update update = new Update().addToSet("clientIds", clientId);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public void removeClientId(String trainerId, String clientId) {
+        Query query = new Query(Criteria.where("id").is(trainerId));
+        Update update = new Update().pull("clientIds", clientId);
+        mongoTemplate.updateFirst(query, update, User.class);
+    }
+
+    public Optional<Boolean> hasClientId(String trainerId, String clientId) {
+        return trainerRepository.findById(trainerId).map(user -> user.getClientIds().contains(clientId));
     }
 }

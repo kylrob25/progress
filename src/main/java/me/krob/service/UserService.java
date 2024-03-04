@@ -43,9 +43,6 @@ public class UserService {
                     if (user.getPassword() != null && !Objects.equals(user.getPassword(), t.getPassword())) {
                         t.setPassword(user.getPassword());
                     }
-                    if (user.getRoles() != null && !user.getRoles().equals(t.getRoles())) {
-                        t.setRoles(user.getRoles());
-                    }
                     return userRepository.save(t);
                 })
                 .orElseGet(() -> {
@@ -68,6 +65,13 @@ public class UserService {
 
     public Optional<User> getById(String userId) {
         return userRepository.findById(userId);
+    }
+
+    // TODO: Implement this
+    public void updateField(String userId, String fieldName, Object value) {
+        Query query = new Query(Criteria.where("id").is(userId));
+        Update update = new Update().set(fieldName, value);
+        mongoTemplate.updateFirst(query, update, User.class);
     }
 
     /** Roles **/

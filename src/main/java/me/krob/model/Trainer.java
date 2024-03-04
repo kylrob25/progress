@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Set;
+
 @Document(collection = "trainers")
 @Getter
 @Setter
@@ -25,5 +27,5 @@ public class Trainer {
     private String location;
     private String specialization;
 
-    private String[] clientIds;
+    private Set<String> clientIds;
 }
