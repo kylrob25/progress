@@ -1,14 +1,13 @@
 package me.krob.controller;
 
+import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -67,5 +66,11 @@ public class UserController {
         return userService.getById(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{userId}/roles")
+    public ResponseEntity<User> addRoleToUser(@PathVariable String userId, @RequestBody Role role) {
+        userService.addRoleToUser(userId, role);
+        return ResponseEntity.ok().build();
     }
 }

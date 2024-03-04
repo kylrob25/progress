@@ -1,17 +1,22 @@
 package me.krob.service;
 
+import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UserService {
+
+    @Autowired
+    private MongoTemplate mongoTemplate;
 
     @Autowired
     private UserRepository userRepository;
@@ -38,7 +43,7 @@ public class UserService {
                     if (user.getPassword() != null && !Objects.equals(user.getPassword(), t.getPassword())) {
                         t.setPassword(user.getPassword());
                     }
-                    if (user.getRoles() != null && !Arrays.equals(user.getRoles(), t.getRoles())) {
+                    if (user.getRoles() != null && !user.getRoles().equals(t.getRoles())) {
                         t.setRoles(user.getRoles());
                     }
                     return userRepository.save(t);
@@ -47,6 +52,12 @@ public class UserService {
                     user.setId(userId);
                     return userRepository.save(user);
                 });
+    }
+
+    public void addRoleToUser(String userId, Role role) {
+        Query query = new Query(Criteria.where("id").is(userId));
+        Update update = new Update().addToSet("roles", role);
+        mongoTemplate.updateFirst(query, update, User.class);
     }
 
     public void delete(String userId) {

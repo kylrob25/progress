@@ -32,17 +32,6 @@ public class TrainerController {
         return ResponseEntity.notFound().build();
     }
 
-    /*
-    @PostMapping
-    public ResponseEntity<Trainer> create(@RequestBody User user) {
-        if (user.getId() != null & userService.exists(user.getId()) &&
-                !trainerService.existsByUserId(user.getId())) {
-            Trainer created = trainerService.create(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
-        }
-        return ResponseEntity.notFound().build();
-    }*/
-
     @PutMapping("/{trainerId}")
     public ResponseEntity<Trainer> update(@PathVariable String trainerId, @RequestBody Trainer trainer) {
         Trainer updated = trainerService.update(trainerId, trainer);

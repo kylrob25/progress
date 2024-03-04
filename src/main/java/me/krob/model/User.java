@@ -2,9 +2,10 @@ package me.krob.model;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.krob.model.auth.RegisterRequest;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.util.Set;
 
 @Document(collection = "users")
 @Getter
@@ -19,5 +20,5 @@ public class User {
     private String email;
     private String password;
 
-    private Role[] roles;
+    private Set<Role> roles;
 }
