@@ -1,5 +1,6 @@
 package me.krob.controller;
 
+import me.krob.model.Role;
 import me.krob.model.Trainer;
 import me.krob.model.User;
 import me.krob.service.TrainerService;
@@ -74,5 +75,24 @@ public class TrainerController {
         return trainerService.getByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{trainerId}/clients/{clientId}/exists")
+    public ResponseEntity<?> hasClient(@PathVariable String trainerId, @PathVariable String clientId) {
+        return trainerService.hasClientId(trainerId, clientId)
+                .map(ResponseEntity::ok)
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("/{trainerId}/clients")
+    public ResponseEntity<Trainer> addClient(@PathVariable String trainerId, @RequestBody String clientId) {
+        trainerService.addClientId(trainerId, clientId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{trainerId}/clients/{clientId}")
+    public ResponseEntity<Trainer> removeRole(@PathVariable String trainerId, @PathVariable String clientId) {
+        trainerService.removeClientId(trainerId, clientId);
+        return ResponseEntity.ok().build();
     }
 }
