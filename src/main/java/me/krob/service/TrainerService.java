@@ -4,6 +4,7 @@ import me.krob.model.Role;
 import me.krob.model.Trainer;
 import me.krob.model.User;
 import me.krob.repository.TrainerRepository;
+import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -20,7 +21,7 @@ import java.util.Optional;
 public class TrainerService {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private MongoTemplateUtil mongoUtil;
 
     @Autowired
     private TrainerRepository trainerRepository;
@@ -92,15 +93,11 @@ public class TrainerService {
     /** Client Ids **/
 
     public void addClientId(String trainerId, String clientId) {
-        Query query = new Query(Criteria.where("id").is(trainerId));
-        Update update = new Update().addToSet("clientIds", clientId);
-        mongoTemplate.updateFirst(query, update, User.class);
+        mongoUtil.addToSet(trainerId, "clientIds", clientId, User.class);
     }
 
     public void removeClientId(String trainerId, String clientId) {
-        Query query = new Query(Criteria.where("id").is(trainerId));
-        Update update = new Update().pull("clientIds", clientId);
-        mongoTemplate.updateFirst(query, update, User.class);
+        mongoUtil.pull(trainerId, "clientIds", clientId, User.class);
     }
 
     public Optional<Boolean> hasClientId(String trainerId, String clientId) {

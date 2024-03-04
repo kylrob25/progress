@@ -3,6 +3,7 @@ package me.krob.service;
 import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.repository.UserRepository;
+import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -16,7 +17,7 @@ import java.util.*;
 public class UserService {
 
     @Autowired
-    private MongoTemplate mongoTemplate;
+    private MongoTemplateUtil mongoUtil;
 
     @Autowired
     private UserRepository userRepository;
@@ -67,25 +68,14 @@ public class UserService {
         return userRepository.findById(userId);
     }
 
-    // TODO: Implement this
-    public void updateField(String userId, String fieldName, Object value) {
-        Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().set(fieldName, value);
-        mongoTemplate.updateFirst(query, update, User.class);
-    }
-
     /** Roles **/
 
     public void addRole(String userId, Role role) {
-        Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().addToSet("roles", role);
-        mongoTemplate.updateFirst(query, update, User.class);
+        mongoUtil.addToSet(userId, "roles", role, User.class);
     }
 
     public void removeRole(String userId, Role role) {
-        Query query = new Query(Criteria.where("id").is(userId));
-        Update update = new Update().pull("roles", role);
-        mongoTemplate.updateFirst(query, update, User.class);
+        mongoUtil.pull(userId, "roles", role, User.class);
     }
 
     public Optional<Boolean> hasRole(String userId, Role role) {

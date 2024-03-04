@@ -71,7 +71,9 @@ public class UserController {
 
     @GetMapping("/{userId}/roles/{role}/exists")
     public ResponseEntity<?> hasRole(@PathVariable String userId, @PathVariable Role role) {
-        return userService.hasRole(userId, role).map(ResponseEntity::ok).orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        return userService.hasRole(userId, role)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{userId}/roles")
