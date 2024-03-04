@@ -2,6 +2,7 @@ package me.krob.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import me.krob.security.service.UserDetailsServiceImpl;
@@ -29,30 +30,34 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String header = request.getHeader("Authorization");
+        String accessToken = jwtUtils.getTokenFromCookie(request);
 
-        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String token = header.substring(7); // Get token from header
-            String username = null;
-
-            // Validate and extract username
-            if (jwtUtils.validate(token)) {
-                try {
-                    username = jwtUtils.extract(token);
-                } catch (Exception exception) {
-                    Logger.getGlobal().info(exception.getMessage());
-                }
+        if (accessToken != null && jwtUtils.validate(accessToken)) {
+            try {
+                String username = jwtUtils.extract(accessToken);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-                        null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Set current UserDetails
+                // Set current UserDetails in SecurityContext
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception exception) {
+                Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
             }
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private String extractTokenFromCookies(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() != null) {
+            for (Cookie cookie : request.getCookies()) {
+                if (cookieName.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

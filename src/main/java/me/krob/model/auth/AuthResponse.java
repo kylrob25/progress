@@ -3,11 +3,9 @@ package me.krob.model.auth;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
-import me.krob.model.Role;
 
 @RequiredArgsConstructor
 @Getter @Setter
-public class LoginResponse {
-    private final String /*token,*/ id, username, email;
-    private final Role[] roles;
+public class AuthResponse {
+    private final String message;
 }
