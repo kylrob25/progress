@@ -2,6 +2,7 @@ package me.krob.security.service;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import me.krob.model.Role;
 import me.krob.model.User;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,25 +14,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@RequiredArgsConstructor
 @Getter
 public class UserDetailsImpl implements UserDetails {
-    private String id, username, email;
+    private final String id, username, email;
 
-    @JsonIgnore private String password;
+    @JsonIgnore private final String password;
 
-    private Collection<? extends GrantedAuthority> authorities;
-
-    public UserDetailsImpl(String id, String username, String email, String password,
-                           Collection<? extends GrantedAuthority> authorities) {
-        this.id = id;
-        this.username = username;
-        this.email = email;
-        this.password = password;
-        this.authorities = authorities;
-    }
+    private final Collection<? extends GrantedAuthority> authorities;
 
     public static UserDetailsImpl build(User user) {
-        List<GrantedAuthority> authorities = Stream.of(user.getRoles())
+        List<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toList());
 

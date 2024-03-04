@@ -4,7 +4,6 @@ import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.UserService;
-import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,15 +48,15 @@ public class UserController {
         return userService.getAll();
     }
 
-    @GetMapping("/token")
-    public ResponseEntity<UserDetailsImpl> getWithToken() {
+    @GetMapping("/validate")
+    public ResponseEntity<UserDetailsImpl> validateToken() {
         Object obj = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         try {
             UserDetailsImpl userDetails = (UserDetailsImpl) obj;
             return ResponseEntity.ok(userDetails);
         } catch (Throwable throwable) {
-            ResponseEntity.status(409).build();
+            ResponseEntity.badRequest().build();
         }
         return ResponseEntity.notFound().build();
     }

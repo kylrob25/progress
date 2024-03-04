@@ -56,6 +56,12 @@ public class AuthController {
         ));
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refresh() {
+        // TOOD:
+        return null;
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
