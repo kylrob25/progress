@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.logging.Logger;
 
 @Service
 public class RefreshTokenService {
@@ -37,13 +38,14 @@ public class RefreshTokenService {
 
     public RefreshToken verify(RefreshToken token){
         if (token.getExpiry().compareTo(Instant.now())<0){
+            Logger.getGlobal().info(token.getUsername() + " token has expired, deleting..");
             refreshTokenRepository.delete(token);
             return null;
         }
         return token;
     }
 
-    public void deleteByUserId(String username){
+    public void deleteByUsername(String username){
         refreshTokenRepository.deleteByUsername(username);
     }
 }

@@ -3,10 +3,7 @@ package me.krob.controller;
 import jakarta.servlet.http.HttpServletRequest;
 import me.krob.model.Role;
 import me.krob.model.User;
-import me.krob.model.auth.AuthResponse;
-import me.krob.model.auth.LoginRequest;
-import me.krob.model.auth.LoginResponse;
-import me.krob.model.auth.RegisterRequest;
+import me.krob.model.auth.*;
 import me.krob.model.token.RefreshToken;
 import me.krob.repository.UserRepository;
 import me.krob.security.service.UserDetailsImpl;
@@ -26,6 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
+import java.util.logging.Logger;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600, allowCredentials = "true")
 @RestController
@@ -56,15 +54,13 @@ public class AuthController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         UserDetailsImpl user = (UserDetailsImpl) authentication.getPrincipal();
-        ResponseCookie tokenCookie = jwtUtils.generateTokenCookie(user);
-
+        String token = jwtUtils.generate(authentication);
         RefreshToken refreshToken = refreshTokenService.create(user.getUsername());
-        ResponseCookie refreshCookie = jwtUtils.generateRefreshCookie(refreshToken.getToken());
 
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, tokenCookie.toString())
-                .header(HttpHeaders.SET_COOKIE, refreshCookie.toString())
                 .body(new LoginResponse(
+                        token,
+                        refreshToken.getToken(),
                         user.getId(),
                         user.getUsername(),
                         user.getEmail(),
@@ -96,8 +92,8 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<AuthResponse> refresh(HttpServletRequest request) {
-        String refreshToken = jwtUtils.getRefreshFromCookie(request);
+    public ResponseEntity<?> refresh(@RequestBody TokenRequest request) {
+        String refreshToken = request.getRefreshToken();
 
         if (refreshToken == null || refreshToken.isEmpty()){
             return ResponseEntity.badRequest().body(new AuthResponse("Empty refresh token."));
@@ -107,31 +103,34 @@ public class AuthController {
                 .map(refreshTokenService::verify)
                 .map(RefreshToken::getUsername)
                 .map(username ->{
-                    ResponseCookie cookie = jwtUtils.generateTokenCookie(username);
+                    String token = jwtUtils.generate(username);
                     return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthResponse("Refreshed token."));
+                            .body(new TokenResponse(token, refreshToken));
                 })
-                .orElseGet(() -> ResponseEntity.badRequest().body(new AuthResponse("Unknown refresh token.")));
+                .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     @PostMapping("/logout")
     public ResponseEntity<AuthResponse> logout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken)) {
-            Object principal = authentication.getPrincipal();
+        if (authentication != null) {
+            try {
+                Object principal = authentication.getPrincipal();
+                Logger.getGlobal().info(principal.getClass().getSimpleName());
 
-            if (principal instanceof UserDetailsImpl user){
-                refreshTokenService.deleteByUserId(user.getId());
+                if (principal instanceof UserDetailsImpl user){
+                    Logger.getGlobal().info(String.format("Deleting refresh token from service for %s", user.getUsername()));
+                    refreshTokenService.deleteByUsername(user.getId());
+                } else {
+                    Logger.getGlobal().info(principal.toString());
+                }
+            } catch (Throwable throwable) {
+                Logger.getGlobal().info(throwable.getMessage());
             }
         }
 
-        ResponseCookie cookie = jwtUtils.getCleanCookie();
-        ResponseCookie refreshCookie = jwtUtils.getCleanRefreshCookie();
-
         return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, String.format(CLEAN_COOKIE_HEADER, cookie, refreshCookie))
                 .body(new AuthResponse("Success."));
     }
 }

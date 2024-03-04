@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import me.krob.security.service.UserDetailsImpl;
 import me.krob.security.service.UserDetailsServiceImpl;
 import me.krob.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,34 +31,27 @@ public class TokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String accessToken = jwtUtils.getTokenFromCookie(request);
+        String header = request.getHeader("Authorization");
 
-        if (accessToken != null && jwtUtils.validate(accessToken)) {
-            try {
-                String username = jwtUtils.extract(accessToken);
+        if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
+            String accessToken = header.substring(7); // Get token from header
+            if (jwtUtils.validate(accessToken)) {
+                try {
+                    String username = jwtUtils.extract(accessToken);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                // Set current UserDetails in SecurityContext
-                SecurityContextHolder.getContext().setAuthentication(authentication);
-            } catch (Exception exception) {
-                Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
+                    Logger.getGlobal().info(((UserDetailsImpl)authentication.getPrincipal()).getUsername());
+
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (Exception exception) {
+                    Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
+                }
             }
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String extractTokenFromCookies(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if (cookieName.equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
-        }
-        return null;
     }
 }
