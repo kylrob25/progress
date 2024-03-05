@@ -21,4 +21,6 @@ public class User {
     private String password;
 
     private Set<Role> roles;
+
+    private Set<String> conversationIds;
 }

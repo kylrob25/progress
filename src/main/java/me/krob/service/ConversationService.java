@@ -25,6 +25,14 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
+    public Optional<Conversation> getById(String conversationId) {
+        return conversationRepository.findById(conversationId);
+    }
+
+    public Set<Conversation> getUserConversations(Set<String> conversationIds) {
+        return conversationRepository.findByIdIn(conversationIds);
+    }
+
     /** Participant IDs **/
 
     public void addParticipantId(String conversationId, String participantId) {
