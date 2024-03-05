@@ -68,6 +68,13 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/username/{username}")
+    public ResponseEntity<User> getByUsername(@PathVariable String username) {
+        return userService.getByUsername(username)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
     @GetMapping("/{userId}/roles/{role}/exists")
     public ResponseEntity<?> hasRole(@PathVariable String userId, @PathVariable Role role) {
         return userService.hasRole(userId, role)
