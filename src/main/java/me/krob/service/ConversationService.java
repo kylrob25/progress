@@ -55,6 +55,10 @@ public class ConversationService {
 
     /** Message IDs **/
 
+    public void setLastMessageId(String conversationId, String lastMessageId) {
+        mongoUtil.set(conversationId, "lastMessageId", lastMessageId, Conversation.class);
+    }
+
     public void addMessageId(String conversationId, String messageId) {
         mongoUtil.addToSet(conversationId, "messageIds", messageId, Conversation.class);
     }

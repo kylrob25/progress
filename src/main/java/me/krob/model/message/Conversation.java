@@ -16,4 +16,6 @@ public class Conversation {
 
     private Set<String> participantIds;
     private List<String> messageIds;
+
+    private String lastMessageId;
 }
