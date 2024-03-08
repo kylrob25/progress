@@ -71,7 +71,7 @@ public class ConversationService {
         mongoUtil.pull(conversationId, "messageIds", messageId, Conversation.class);
     }
 
-    public Optional<List<String>> getMessageIds(String conversationId) {
+    public Optional<Set<String>> getMessageIds(String conversationId) {
         return conversationRepository.findById(conversationId)
                 .map(Conversation::getMessageIds);
     }
