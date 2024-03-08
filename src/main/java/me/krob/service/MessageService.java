@@ -17,7 +17,11 @@ public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
 
-    public Optional<Message> getByid(String messageId) {
+    public Message create(Message message) {
+        return messageRepository.save(message);
+    }
+
+    public Optional<Message> getById(String messageId) {
         return messageRepository.findById(messageId);
     }
 }

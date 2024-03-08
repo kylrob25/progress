@@ -25,6 +25,10 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
+    public List<Conversation> getAll(){
+        return conversationRepository.findAll();
+    }
+
     public Optional<Conversation> getById(String conversationId) {
         return conversationRepository.findById(conversationId);
     }

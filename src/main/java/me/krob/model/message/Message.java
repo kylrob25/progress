@@ -5,6 +5,8 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.Instant;
+
 @Document(collection = "messages")
 @Getter @Setter
 public class Message {
@@ -15,5 +17,5 @@ public class Message {
     private String conversationId;
     private String senderId;
     private String text;
-    private Long timestamp;
+    private Instant timestamp;
 }

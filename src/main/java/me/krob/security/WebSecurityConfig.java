@@ -52,10 +52,12 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         boolean testing = true;
 
+
         if (testing) {
             return http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).build();
         }
+
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
@@ -65,6 +67,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/roles/**").permitAll()
                         .requestMatchers("/api/trainer/**").permitAll()
                         .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/message/**").permitAll()
+                        .requestMatchers("/api/conversation/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

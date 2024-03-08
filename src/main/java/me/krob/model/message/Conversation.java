@@ -5,7 +5,6 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.List;
 import java.util.Set;
 
 @Document(collection = "conversations")
@@ -15,7 +14,7 @@ public class Conversation {
     private String id;
 
     private Set<String> participantIds;
-    private List<String> messageIds;
+    private Set<String> messageIds;
 
     private String lastMessageId;
 }
