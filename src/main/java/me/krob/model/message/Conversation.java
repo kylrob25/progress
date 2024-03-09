@@ -13,6 +13,9 @@ public class Conversation {
     @Id
     private String id;
 
+    private String title;
+    private String creatorId;
+
     private Set<String> participantIds;
     private Set<String> messageIds;
 

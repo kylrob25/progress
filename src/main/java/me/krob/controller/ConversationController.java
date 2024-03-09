@@ -31,8 +31,11 @@ public class ConversationController {
 
     @PostMapping
     public ResponseEntity<Conversation> create(@RequestBody Conversation conversation) {
-        conversationService.create(conversation);
-        return ResponseEntity.ok(conversation);
+        userService.getById(conversation.getCreatorId()).ifPresent(user -> {
+            conversation.setCreatorId(user.getId());
+            conversation.setTitle(user.getUsername() + "'s Conversation");
+        });
+        return ResponseEntity.ok(conversationService.create(conversation));
     }
 
     @GetMapping
