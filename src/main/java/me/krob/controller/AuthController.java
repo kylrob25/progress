@@ -99,11 +99,14 @@ public class AuthController {
             return ResponseEntity.badRequest().body(new AuthResponse("Empty refresh token."));
         }
 
+        Logger.getGlobal().info(refreshToken);
+
         return refreshTokenService.findByToken(refreshToken)
                 .map(refreshTokenService::verify)
                 .map(RefreshToken::getUsername)
                 .map(username ->{
                     String token = jwtUtils.generate(username);
+                    Logger.getGlobal().info(String.format("Generated new token: %s", token));
                     return ResponseEntity.ok()
                             .body(new TokenResponse(token, refreshToken));
                 })

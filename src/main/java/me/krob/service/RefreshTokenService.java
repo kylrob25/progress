@@ -42,6 +42,7 @@ public class RefreshTokenService {
             refreshTokenRepository.delete(token);
             return null;
         }
+        Logger.getGlobal().info("Valid token");
         return token;
     }
 

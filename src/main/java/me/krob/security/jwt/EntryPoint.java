@@ -20,6 +20,6 @@ public class EntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
         LOGGER.error("Unauthorized: {}", authException.getMessage());
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized."); // 401 = authentication required
+        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Error: Unauthorized.");
     }
 }

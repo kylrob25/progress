@@ -1,8 +1,10 @@
 package me.krob.security;
 
+import lombok.RequiredArgsConstructor;
 import me.krob.security.jwt.EntryPoint;
 import me.krob.security.jwt.TokenFilter;
 import me.krob.security.service.UserDetailsServiceImpl;
+import me.krob.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,13 +22,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableMethodSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    @Autowired
-    UserDetailsServiceImpl userDetailsService;
-
-    @Autowired
-    private EntryPoint entryPoint;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final EntryPoint entryPoint;
+    private final JwtUtils jwtUtils;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -53,11 +54,12 @@ public class WebSecurityConfig {
         boolean testing = true;
 
 
+        /*
         if (testing) {
             return http.csrf(AbstractHttpConfigurer::disable)
                     .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()).build();
         }
-
+         */
 
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(entryPoint))
@@ -74,8 +76,13 @@ public class WebSecurityConfig {
 
         http.authenticationProvider(authenticationProvider());
 
-        http.addFilterBefore(new TokenFilter(), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(authenticationJwtTokenFilter(jwtUtils, userDetailsService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public TokenFilter authenticationJwtTokenFilter(JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService) {
+        return new TokenFilter(jwtUtils, userDetailsService);
     }
 }

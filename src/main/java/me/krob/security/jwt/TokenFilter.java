@@ -5,6 +5,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import me.krob.security.service.UserDetailsImpl;
 import me.krob.security.service.UserDetailsServiceImpl;
 import me.krob.util.JwtUtils;
@@ -21,19 +22,15 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 @Component
+@RequiredArgsConstructor
 public class TokenFilter extends OncePerRequestFilter {
-    @Autowired
-    JwtUtils jwtUtils;
-
-    @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private final JwtUtils jwtUtils;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
-
-        Logger.getGlobal().info(header);
 
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
             String accessToken = header.substring(7);
@@ -51,9 +48,6 @@ public class TokenFilter extends OncePerRequestFilter {
                 } catch (Exception exception) {
                     Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
                 }
-            } else {
-                Logger.getGlobal().info("Setting response to UN_AUTHORIZED.");
-                response.setStatus(401);
             }
         }
 
