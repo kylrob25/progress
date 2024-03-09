@@ -38,6 +38,18 @@ public class ConversationController {
         return ResponseEntity.ok(conversationService.create(conversation));
     }
 
+    @DeleteMapping("/{conversationId}")
+    public ResponseEntity<?> delete(@PathVariable String conversationId) {
+        conversationService.getById(conversationId).ifPresent(conversation -> {
+            conversation.getMessageIds()
+                    .forEach(messageService::deleteById);
+            conversation.getParticipantIds()
+                    .forEach(userId -> userService.remoeConversation(userId, conversationId));
+        });
+        conversationService.deleteById(conversationId);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping
     public List<Conversation> getAll() {
         return conversationService.getAll();

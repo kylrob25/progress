@@ -25,6 +25,10 @@ public class ConversationService {
         return conversationRepository.save(conversation);
     }
 
+    public void deleteById(String conversationId){
+        conversationRepository.deleteById(conversationId);
+    }
+
     public List<Conversation> getAll(){
         return conversationRepository.findAll();
     }

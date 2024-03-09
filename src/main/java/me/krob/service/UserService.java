@@ -85,4 +85,9 @@ public class UserService {
     public Optional<Boolean> hasRole(String userId, Role role) {
         return userRepository.findById(userId).map(user -> user.getRoles().contains(role));
     }
+
+    /** Conversation **/
+    public void remoeConversation(String userId, String conversationId) {
+        mongoUtil.pull(userId, "conversationIds", conversationId, User.class);
+    }
 }
