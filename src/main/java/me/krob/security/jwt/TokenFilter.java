@@ -33,8 +33,10 @@ public class TokenFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String header = request.getHeader("Authorization");
 
+        Logger.getGlobal().info(header);
+
         if (StringUtils.hasText(header) && header.startsWith("Bearer ")) {
-            String accessToken = header.substring(7); // Get token from header
+            String accessToken = header.substring(7);
             if (jwtUtils.validate(accessToken)) {
                 try {
                     String username = jwtUtils.extract(accessToken);
@@ -49,6 +51,9 @@ public class TokenFilter extends OncePerRequestFilter {
                 } catch (Exception exception) {
                     Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
                 }
+            } else {
+                Logger.getGlobal().info("Setting response to UN_AUTHORIZED.");
+                response.setStatus(401);
             }
         }
 

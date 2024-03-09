@@ -55,7 +55,7 @@ public class JwtUtils {
             return true;
         } catch (Throwable throwable) {
             logger.error("Token error: {}", throwable.getMessage());
+            return false;
         }
-        return false;
     }
 }

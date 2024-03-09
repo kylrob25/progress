@@ -87,7 +87,7 @@ public class UserService {
     }
 
     /** Conversation **/
-    public void remoeConversation(String userId, String conversationId) {
+    public void removeConversation(String userId, String conversationId) {
         mongoUtil.pull(userId, "conversationIds", conversationId, User.class);
     }
 }

@@ -44,11 +44,17 @@ public class ConversationController {
             conversation.getMessageIds()
                     .forEach(messageService::deleteById);
             conversation.getParticipantIds()
-                    .forEach(userId -> userService.remoeConversation(userId, conversationId));
+                    .forEach(userId -> userService.removeConversation(userId, conversationId));
         });
         conversationService.deleteById(conversationId);
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("{conversationId}/add")
+    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @RequestBody String username){
+        return null;
+    }
+
 
     @GetMapping
     public List<Conversation> getAll() {
