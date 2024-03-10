@@ -1,8 +1,10 @@
 package me.krob.controller;
 
+import me.krob.model.Client;
 import me.krob.model.Role;
 import me.krob.model.Trainer;
 import me.krob.model.User;
+import me.krob.service.ClientService;
 import me.krob.service.TrainerService;
 import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class TrainerController {
 
     @Autowired
     private TrainerService trainerService;
+
+    @Autowired
+    private ClientService clientService;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Trainer trainer) {
@@ -98,11 +103,12 @@ public class TrainerController {
 
     @DeleteMapping("/{trainerId}/clients/{clientId}")
     public ResponseEntity<Trainer> removeClient(@PathVariable String trainerId, @PathVariable String clientId) {
+        clientService.deleteById(clientId);
         trainerService.removeClientId(trainerId, clientId);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{trainerId}/clients/")
+    @GetMapping("/{trainerId}/clients")
     public ResponseEntity<Set<String>> getClients(@PathVariable String trainerId){
         return trainerService.getClients(trainerId)
                 .map(ResponseEntity::ok)

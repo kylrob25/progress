@@ -61,6 +61,10 @@ public class TrainerService {
         trainerRepository.deleteByUserId(userId);
     }
 
+    public boolean exists(String trainerId) {
+        return trainerRepository.existsById(trainerId);
+    }
+
     public boolean notExistsByUserId(String userId) {
         return !existsByUserId(userId);
     }
