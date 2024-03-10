@@ -12,10 +12,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class TrainerService {
@@ -35,12 +32,6 @@ public class TrainerService {
                 .map(t -> {
                     if (trainer.getUsername() != null && !Objects.equals(trainer.getUsername(), t.getUsername())) {
                         t.setUsername(trainer.getUsername());
-                    }
-                    if (trainer.getForename() != null && !Objects.equals(trainer.getForename(), t.getForename())) {
-                        t.setForename(trainer.getForename());
-                    }
-                    if (trainer.getSurname() != null && !Objects.equals(trainer.getSurname(), t.getSurname())) {
-                        t.setSurname(trainer.getSurname());
                     }
                     if (trainer.getPictureUrl() != null && !Objects.equals(trainer.getPictureUrl(), t.getPictureUrl())) {
                         t.setPictureUrl(trainer.getPictureUrl());
@@ -68,6 +59,10 @@ public class TrainerService {
 
     public void deleteByUserId(String userId) {
         trainerRepository.deleteByUserId(userId);
+    }
+
+    public boolean notExistsByUserId(String userId) {
+        return !existsByUserId(userId);
     }
 
     public boolean existsByUserId(String userId) {
@@ -102,5 +97,9 @@ public class TrainerService {
 
     public Optional<Boolean> hasClientId(String trainerId, String clientId) {
         return trainerRepository.findById(trainerId).map(user -> user.getClientIds().contains(clientId));
+    }
+
+    public Optional<Set<String>> getClients(String trainerId){
+        return trainerRepository.findById(trainerId).map(Trainer::getClientIds);
     }
 }

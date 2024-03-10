@@ -3,16 +3,21 @@ package me.krob.controller;
 import me.krob.model.User;
 import me.krob.model.message.Conversation;
 import me.krob.model.message.Message;
+import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.ConversationService;
 import me.krob.service.MessageService;
 import me.krob.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
@@ -34,6 +39,7 @@ public class ConversationController {
         userService.getById(conversation.getCreatorId()).ifPresent(user -> {
             conversation.setCreatorId(user.getId());
             conversation.setTitle(user.getUsername() + "'s Conversation");
+            conversation.getParticipantNames().add(user.getUsername());
         });
         return ResponseEntity.ok(conversationService.create(conversation));
     }
@@ -51,9 +57,23 @@ public class ConversationController {
     }
 
     @PutMapping("{conversationId}/add")
-    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @RequestBody String username){
-        return null;
+    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @RequestBody String username) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        return conversationService.getById(conversationId)
+                .filter(conversation -> conversation.isCreator(userDetails.getId()))
+                .flatMap(conversation -> userService.getByUsername(username)
+                        .map(user -> {
+                            Logger.getGlobal().info(username);
+                            conversationService.addParticipantId(conversationId, user.getId());
+                            conversationService.addParticipantName(conversationId, username);
+                            return ResponseEntity.ok().build();
+                        })
+                )
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.FORBIDDEN).build());
     }
+
 
 
     @GetMapping

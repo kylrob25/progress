@@ -61,6 +61,26 @@ public class ConversationService {
                 .map(conversation -> conversation.getParticipantIds().contains(participantId));
     }
 
+    /** Participant Names **/
+
+    public void addParticipantName(String conversationId, String participantName) {
+        mongoUtil.addToSet(conversationId, "participantNames", participantName, Conversation.class);
+    }
+
+    public void removeParticipantName(String conversationId, String participantName) {
+        mongoUtil.pull(conversationId, "participantNames", participantName, Conversation.class);
+    }
+
+    public Optional<Set<String>> getParticipantNames(String conversationId) {
+        return conversationRepository.findById(conversationId)
+                .map(Conversation::getParticipantNames);
+    }
+
+    public Optional<Boolean> hasParticipantName(String conversationId, String participantName) {
+        return conversationRepository.findById(conversationId)
+                .map(conversation -> conversation.getParticipantNames().contains(participantName));
+    }
+
     /** Message IDs **/
 
     public void setLastMessageId(String conversationId, String lastMessageId) {

@@ -29,9 +29,6 @@ public class UserService {
     public User update(String userId, User user) {
         return userRepository.findById(userId)
                 .map(t -> {
-                    if (user.getUsername() != null && !Objects.equals(user.getUsername(), t.getUsername())) {
-                        t.setUsername(user.getUsername());
-                    }
                     if (user.getForename() != null && !Objects.equals(user.getForename(), t.getForename())) {
                         t.setForename(user.getForename());
                     }

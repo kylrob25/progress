@@ -17,7 +17,13 @@ public class Conversation {
     private String creatorId;
 
     private Set<String> participantIds;
+    private Set<String> participantNames;
+
     private Set<String> messageIds;
 
     private String lastMessageId;
+
+    public boolean isCreator(String userId){
+        return creatorId.equals(userId);
+    }
 }

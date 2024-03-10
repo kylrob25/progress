@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
@@ -24,11 +25,16 @@ public class TrainerController {
     private TrainerService trainerService;
 
     @PostMapping
-    public ResponseEntity<Trainer> create(@RequestBody Trainer trainer) {
-        if (trainer.getUserId() != null & userService.exists(trainer.getUserId()) &&
-                !trainerService.existsByUserId(trainer.getUserId())) {
-            Trainer created = trainerService.create(trainer);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity<?> create(@RequestBody Trainer trainer) {
+        String userId = trainer.getUserId();
+        if (userId != null){
+            userService.getById(userId).map(user -> {
+                trainer.setUsername(user.getUsername());
+                return user.getId();
+            })
+                    .filter(trainerService::notExistsByUserId)
+                    .map(s-> ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(trainer)))
+                    .orElseGet(() -> ResponseEntity.notFound().build());
         }
         return ResponseEntity.notFound().build();
     }
@@ -91,8 +97,15 @@ public class TrainerController {
     }
 
     @DeleteMapping("/{trainerId}/clients/{clientId}")
-    public ResponseEntity<Trainer> removeRole(@PathVariable String trainerId, @PathVariable String clientId) {
+    public ResponseEntity<Trainer> removeClient(@PathVariable String trainerId, @PathVariable String clientId) {
         trainerService.removeClientId(trainerId, clientId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{trainerId}/clients/")
+    public ResponseEntity<Set<String>> getClients(@PathVariable String trainerId){
+        return trainerService.getClients(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 }

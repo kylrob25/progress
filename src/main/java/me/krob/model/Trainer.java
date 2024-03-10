@@ -18,8 +18,6 @@ public class Trainer {
     private String userId;
 
     private String username;
-    private String forename;
-    private String surname;
 
     private String pictureUrl;
 

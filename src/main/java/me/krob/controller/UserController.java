@@ -87,8 +87,8 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{userId}/roles")
-    public ResponseEntity<User> addRole(@PathVariable String userId, @RequestBody Role role) {
+    @PutMapping("/{userId}/roles/{role}")
+    public ResponseEntity<User> addRole(@PathVariable String userId, @PathVariable Role role) {
         userService.addRole(userId, role);
         return ResponseEntity.ok().build();
     }
