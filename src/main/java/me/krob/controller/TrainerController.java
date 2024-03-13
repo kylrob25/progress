@@ -111,4 +111,29 @@ public class TrainerController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @PutMapping("/{trainerId}/request/{userId}")
+    public ResponseEntity<?> addClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
+        trainerService.addRequestId(trainerId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{trainerId}/request/{userId}")
+    public ResponseEntity<?> acceptClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
+        // TODO:
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/{trainerId}/request/{userId}")
+    public ResponseEntity<?> denyClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
+        // TODO:
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{trainerId}/request")
+    public ResponseEntity<Set<String>> getClientRequests(@PathVariable String trainerId) {
+        return trainerService.getRequestIds(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }
