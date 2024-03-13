@@ -1,5 +1,6 @@
 package me.krob.service;
 
+import me.krob.model.Payment;
 import me.krob.model.Trainer;
 import me.krob.model.User;
 import me.krob.repository.TrainerRepository;

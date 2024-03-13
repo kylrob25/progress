@@ -22,5 +22,5 @@ public class Payment {
 
     private double amount;
 
-    private String paymentLink;
+    private String link;
 }

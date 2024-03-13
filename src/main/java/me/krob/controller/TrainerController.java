@@ -153,4 +153,11 @@ public class TrainerController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/{trainerId}/payments")
+    public ResponseEntity<Set<String>> getPayments(@PathVariable String trainerId) {
+        return trainerService.getPaymentIds(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

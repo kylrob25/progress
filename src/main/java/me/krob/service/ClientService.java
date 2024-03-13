@@ -46,6 +46,14 @@ public class ClientService {
         return clientRepository.findByUserId(userId);
     }
 
+    public void updateWeight(String clientId, int weight) {
+        mongoUtil.set(clientId, "weight", weight, Client.class);
+    }
+
+    public void updateCalories(String clientId, int calories) {
+        mongoUtil.set(clientId, "calories", calories, Client.class);
+    }
+
     /**
      * Payment IDs
      */
