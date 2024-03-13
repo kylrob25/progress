@@ -125,4 +125,19 @@ public class TrainerService {
     public Optional<Set<String>> getRequestIds(String trainerId) {
         return trainerRepository.findById(trainerId).map(Trainer::getClientRequestIds);
     }
+
+    /**
+     * Payment IDs
+     */
+    public void addPaymentId(String trainerId, String paymentId) {
+        mongoUtil.addToSet(trainerId, "paymentIds", paymentId, Trainer.class);
+    }
+
+    public void removePaymentId(String trainerId, String paymentId) {
+        mongoUtil.pull(trainerId, "paymentIds", paymentId, Trainer.class);
+    }
+
+    public Optional<Set<String>> getPaymentIds(String trainerId) {
+        return trainerRepository.findById(trainerId).map(Trainer::getPaymentIds);
+    }
 }

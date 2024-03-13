@@ -27,4 +27,6 @@ public class Trainer {
 
     private Set<String> clientIds;
     private Set<String> clientRequestIds;
+
+    private Set<String> paymentIds;
 }
