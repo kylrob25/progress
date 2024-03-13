@@ -26,4 +26,5 @@ public class Trainer {
     private String specialization;
 
     private Set<String> clientIds;
+    private Set<String> clientRequestIds;
 }

@@ -89,21 +89,40 @@ public class TrainerService {
 
     /**
      * Client Ids
-     **/
+     */
 
     public void addClientId(String trainerId, String clientId) {
-        mongoUtil.addToSet(trainerId, "clientIds", clientId, User.class);
+        mongoUtil.addToSet(trainerId, "clientIds", clientId, Trainer.class);
     }
 
     public void removeClientId(String trainerId, String clientId) {
-        mongoUtil.pull(trainerId, "clientIds", clientId, User.class);
+        mongoUtil.pull(trainerId, "clientIds", clientId, Trainer.class);
     }
 
     public Optional<Boolean> hasClientId(String trainerId, String clientId) {
-        return trainerRepository.findById(trainerId).map(user -> user.getClientIds().contains(clientId));
+        return trainerRepository.findById(trainerId).map(trainer -> trainer.getClientIds().contains(clientId));
     }
 
     public Optional<Set<String>> getClients(String trainerId) {
         return trainerRepository.findById(trainerId).map(Trainer::getClientIds);
+    }
+
+    /**
+     * Client Request Ids
+     */
+    public void addRequestId(String trainerId, String userId) {
+        mongoUtil.addToSet(trainerId, "clientRequestIds", userId, Trainer.class);
+    }
+
+    public void removeRequestId(String trainerId, String userId) {
+        mongoUtil.pull(trainerId, "clientRequestIds", userId, Trainer.class);
+    }
+
+    public Optional<Boolean> hasRequestId(String trainerId, String userId) {
+        return trainerRepository.findById(trainerId).map(trainer -> trainer.getClientRequestIds().contains(userId));
+    }
+
+    public Optional<Set<String>> getRequestIds(String trainerId) {
+        return trainerRepository.findById(trainerId).map(Trainer::getClientRequestIds);
     }
 }

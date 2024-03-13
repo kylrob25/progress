@@ -19,11 +19,6 @@ import java.util.Set;
 @RequestMapping("/api/user")
 public class UserController {
 
-    /*
-    Use @PreAuthorize for all of these methods as only admins should be able to do these
-    I think?
-     */
-
     @Autowired
     private UserService userService;
 
