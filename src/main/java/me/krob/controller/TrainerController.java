@@ -93,6 +93,7 @@ public class TrainerController {
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
+    @Deprecated
     @PutMapping("/{trainerId}/clients")
     public ResponseEntity<Trainer> addClient(@PathVariable String trainerId, @RequestBody String clientId) {
         trainerService.addClientId(trainerId, clientId);
@@ -107,19 +108,19 @@ public class TrainerController {
     }
 
     @GetMapping("/{trainerId}/clients")
-    public ResponseEntity<Set<String>> getClients(@PathVariable String trainerId) {
+    public ResponseEntity<Set<String>> getClientIds(@PathVariable String trainerId) {
         return trainerService.getClients(trainerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @PutMapping("/{trainerId}/request/{userId}")
+    @PutMapping("/{trainerId}/requests/{userId}")
     public ResponseEntity<?> addClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         trainerService.addRequestId(trainerId, userId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{trainerId}/request/{userId}")
+    @PostMapping("/{trainerId}/requests/{userId}")
     public ResponseEntity<?> acceptClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         return trainerService.getRequestIds(trainerId).map(ids -> {
             if (ids.contains(userId)) {
@@ -132,7 +133,7 @@ public class TrainerController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @DeleteMapping("/{trainerId}/request/{userId}")
+    @DeleteMapping("/{trainerId}/requests/{userId}")
     public ResponseEntity<?> denyClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         return trainerService.getRequestIds(trainerId).map(ids -> {
             if (ids.contains(userId)) {
@@ -146,7 +147,7 @@ public class TrainerController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{trainerId}/request")
+    @GetMapping("/{trainerId}/requests")
     public ResponseEntity<Set<String>> getClientRequests(@PathVariable String trainerId) {
         return trainerService.getRequestIds(trainerId)
                 .map(ResponseEntity::ok)
