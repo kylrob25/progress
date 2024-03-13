@@ -84,6 +84,10 @@ public class UserService {
     }
 
     /** Conversation **/
+    public void addConversation(String userId, String conversationId) {
+        mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
+    }
+
     public void removeConversation(String userId, String conversationId) {
         mongoUtil.pull(userId, "conversationIds", conversationId, User.class);
     }

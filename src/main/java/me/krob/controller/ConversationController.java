@@ -41,6 +41,11 @@ public class ConversationController {
             conversation.setTitle(user.getUsername() + "'s Conversation");
             conversation.getParticipantNames().add(user.getUsername());
         });
+
+        conversation.getParticipantIds().stream()
+                .filter(id -> userService.exists(id))
+                .forEach(id -> userService.addConversation(id, conversation.getId()));
+
         return ResponseEntity.ok(conversationService.create(conversation));
     }
 
