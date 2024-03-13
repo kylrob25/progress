@@ -124,7 +124,7 @@ public class TrainerController {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/{trainerId}/request/{userId}")
+    @DeleteMapping("/{trainerId}/request/{userId}")
     public ResponseEntity<?> denyClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         // TODO:
         return ResponseEntity.ok().build();
