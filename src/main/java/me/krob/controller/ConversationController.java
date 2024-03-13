@@ -61,6 +61,20 @@ public class ConversationController {
         return ResponseEntity.ok().build();
     }
 
+    @DeleteMapping("/{conversationId}/leave/{userId}")
+    public ResponseEntity<?> leave(@PathVariable String conversationId, String userId) {
+        conversationService.getById(conversationId)
+                .ifPresent(conversation -> {
+                    userService.getById(userId).ifPresent(user -> {
+                        conversationService.removeParticipantName(conversationId, user.getUsername());
+                        conversationService.removeParticipantId(conversationId, user.getId());
+                    });
+
+                    userService.removeConversation(userId, conversationId);
+                });
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("{conversationId}/add")
     public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @RequestBody String username) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -80,21 +94,20 @@ public class ConversationController {
     }
 
 
-
     @GetMapping
     public List<Conversation> getAll() {
         return conversationService.getAll();
     }
 
     @GetMapping("/{conversationId}")
-    public ResponseEntity<Conversation> getConversation(@PathVariable String conversationId){
+    public ResponseEntity<Conversation> getConversation(@PathVariable String conversationId) {
         return conversationService.getById(conversationId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{conversationId}/messages")
-    public ResponseEntity<Set<Message>> getMessages(@PathVariable String conversationId){
+    public ResponseEntity<Set<Message>> getMessages(@PathVariable String conversationId) {
         return conversationService.getById(conversationId)
                 .map(Conversation::getMessageIds)
                 .map(messageIds -> messageIds.stream()

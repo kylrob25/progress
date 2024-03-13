@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Set;
 
 @Document(collection = "conversations")
-@Getter @Setter
+@Getter
+@Setter
 public class Conversation {
     @Id
     private String id;
@@ -23,7 +24,7 @@ public class Conversation {
 
     private String lastMessageId;
 
-    public boolean isCreator(String userId){
+    public boolean isCreator(String userId) {
         return creatorId.equals(userId);
     }
 }

@@ -5,7 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @RequiredArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 public class AuthResponse {
     private final String message;
 }

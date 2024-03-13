@@ -25,7 +25,7 @@ public class MessageService {
         return messageRepository.findById(messageId);
     }
 
-    public void deleteById(String messageId){
+    public void deleteById(String messageId) {
         messageRepository.deleteById(messageId);
     }
 }

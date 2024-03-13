@@ -6,7 +6,8 @@ import lombok.Setter;
 import me.krob.model.Role;
 
 @RequiredArgsConstructor
-@Getter @Setter
+@Getter
+@Setter
 public class LoginResponse {
     private final String token, refreshToken, id, username, email;
     private final Role[] roles;

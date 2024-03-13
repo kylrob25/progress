@@ -5,7 +5,6 @@ import me.krob.security.jwt.EntryPoint;
 import me.krob.security.jwt.TokenFilter;
 import me.krob.security.service.UserDetailsServiceImpl;
 import me.krob.util.JwtUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

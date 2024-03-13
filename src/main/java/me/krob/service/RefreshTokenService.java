@@ -20,11 +20,11 @@ public class RefreshTokenService {
     @Autowired
     private RefreshTokenRepository refreshTokenRepository;
 
-    public Optional<RefreshToken> findByToken(String token){
+    public Optional<RefreshToken> findByToken(String token) {
         return refreshTokenRepository.findByToken(token);
     }
 
-    public RefreshToken create(String username){
+    public RefreshToken create(String username) {
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUsername(username);
 
@@ -36,8 +36,8 @@ public class RefreshTokenService {
         return refreshTokenRepository.save(refreshToken);
     }
 
-    public RefreshToken verify(RefreshToken token){
-        if (token.getExpiry().compareTo(Instant.now())<0){
+    public RefreshToken verify(RefreshToken token) {
+        if (token.getExpiry().compareTo(Instant.now()) < 0) {
             Logger.getGlobal().info(token.getUsername() + " token has expired, deleting..");
             refreshTokenRepository.delete(token);
             return null;
@@ -46,7 +46,7 @@ public class RefreshTokenService {
         return token;
     }
 
-    public void deleteByUsername(String username){
+    public void deleteByUsername(String username) {
         refreshTokenRepository.deleteByUsername(username);
     }
 }

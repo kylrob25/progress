@@ -1,6 +1,5 @@
 package me.krob.controller;
 
-import jakarta.servlet.http.HttpServletRequest;
 import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.model.auth.*;
@@ -10,11 +9,8 @@ import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.RefreshTokenService;
 import me.krob.util.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -95,7 +91,7 @@ public class AuthController {
     public ResponseEntity<?> refresh(@RequestBody TokenRequest request) {
         String refreshToken = request.getRefreshToken();
 
-        if (refreshToken == null || refreshToken.isEmpty()){
+        if (refreshToken == null || refreshToken.isEmpty()) {
             return ResponseEntity.badRequest().body(new AuthResponse("Empty refresh token."));
         }
 
@@ -104,7 +100,7 @@ public class AuthController {
         return refreshTokenService.findByToken(refreshToken)
                 .map(refreshTokenService::verify)
                 .map(RefreshToken::getUsername)
-                .map(username ->{
+                .map(username -> {
                     String token = jwtUtils.generate(username);
                     Logger.getGlobal().info(String.format("Generated new token: %s", token));
                     return ResponseEntity.ok()
@@ -122,7 +118,7 @@ public class AuthController {
                 Object principal = authentication.getPrincipal();
                 Logger.getGlobal().info(principal.getClass().getSimpleName());
 
-                if (principal instanceof UserDetailsImpl user){
+                if (principal instanceof UserDetailsImpl user) {
                     Logger.getGlobal().info(String.format("Deleting refresh token from service for %s", user.getUsername()));
                     refreshTokenService.deleteByUsername(user.getId());
                 } else {

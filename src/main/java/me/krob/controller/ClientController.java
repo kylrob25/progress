@@ -24,18 +24,18 @@ public class ClientController {
     private ClientService clientService;
 
     @PostMapping
-    public ResponseEntity<Client> create(@RequestBody Client client){
+    public ResponseEntity<Client> create(@RequestBody Client client) {
         String userId = client.getUserId();
 
         if (userId != null && userService.exists(userId)
                 && !clientService.existsByUserId(userId)) {
             String trainerId = client.getTrainerId();
 
-            if (trainerId != null && trainerService.exists(trainerId)){
+            if (trainerId != null && trainerService.exists(trainerId)) {
                 Client created = clientService.create(client);
 
-                trainerService.hasClientId(trainerId, client.getId()).map(has ->{
-                    if (has){
+                trainerService.hasClientId(trainerId, client.getId()).map(has -> {
+                    if (has) {
                         clientService.deleteById(created.getId());
                         return ResponseEntity.status(HttpStatus.CONFLICT).build();
                     }
@@ -49,7 +49,7 @@ public class ClientController {
     }
 
     @GetMapping("/userId/{userId}")
-    public ResponseEntity<Client> getClient(@PathVariable String userId){
+    public ResponseEntity<Client> getClient(@PathVariable String userId) {
         return clientService.getByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

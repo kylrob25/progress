@@ -5,13 +5,11 @@ import me.krob.model.User;
 import me.krob.repository.UserRepository;
 import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -69,7 +67,9 @@ public class UserService {
         return userRepository.findByUsername(username);
     }
 
-    /** Roles **/
+    /**
+     * Roles
+     **/
 
     public void addRole(String userId, Role role) {
         mongoUtil.addToSet(userId, "roles", role, User.class);
@@ -83,7 +83,9 @@ public class UserService {
         return userRepository.findById(userId).map(user -> user.getRoles().contains(role));
     }
 
-    /** Conversation **/
+    /**
+     * Conversation
+     **/
     public void addConversation(String userId, String conversationId) {
         mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
     }

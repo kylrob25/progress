@@ -19,17 +19,19 @@ public class ConversationService {
     @Autowired
     private ConversationRepository conversationRepository;
 
-    /** General **/
+    /**
+     * General
+     **/
 
     public Conversation create(Conversation conversation) {
         return conversationRepository.save(conversation);
     }
 
-    public void deleteById(String conversationId){
+    public void deleteById(String conversationId) {
         conversationRepository.deleteById(conversationId);
     }
 
-    public List<Conversation> getAll(){
+    public List<Conversation> getAll() {
         return conversationRepository.findAll();
     }
 
@@ -41,7 +43,9 @@ public class ConversationService {
         return conversationRepository.findByIdIn(conversationIds);
     }
 
-    /** Participant IDs **/
+    /**
+     * Participant IDs
+     **/
 
     public void addParticipantId(String conversationId, String participantId) {
         mongoUtil.addToSet(conversationId, "participantIds", participantId, Conversation.class);
@@ -61,7 +65,9 @@ public class ConversationService {
                 .map(conversation -> conversation.getParticipantIds().contains(participantId));
     }
 
-    /** Participant Names **/
+    /**
+     * Participant Names
+     **/
 
     public void addParticipantName(String conversationId, String participantName) {
         mongoUtil.addToSet(conversationId, "participantNames", participantName, Conversation.class);
@@ -81,7 +87,9 @@ public class ConversationService {
                 .map(conversation -> conversation.getParticipantNames().contains(participantName));
     }
 
-    /** Message IDs **/
+    /**
+     * Message IDs
+     **/
 
     public void setLastMessageId(String conversationId, String lastMessageId) {
         mongoUtil.set(conversationId, "lastMessageId", lastMessageId, Conversation.class);

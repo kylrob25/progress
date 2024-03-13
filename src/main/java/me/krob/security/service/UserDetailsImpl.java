@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Getter
@@ -22,7 +21,8 @@ public class UserDetailsImpl implements UserDetails {
 
     private final String id, username, email;
 
-    @JsonIgnore private final String password;
+    @JsonIgnore
+    private final String password;
 
     private final Collection<? extends GrantedAuthority> authorities;
 
@@ -41,7 +41,7 @@ public class UserDetailsImpl implements UserDetails {
 
     public Role[] getRoles() {
         return authorities.stream().map(authorities ->
-                Role.valueOf(authorities.getAuthority()))
+                        Role.valueOf(authorities.getAuthority()))
                 .toArray(Role[]::new);
     }
 

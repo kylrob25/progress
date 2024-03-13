@@ -24,7 +24,9 @@ public class JwtUtils {
     @Value("${progress.jwt.expiration}")
     private int expiration;
 
-    /** Tokens **/
+    /**
+     * Tokens
+     **/
 
     public String generate(String username) {
         return Jwts.builder()

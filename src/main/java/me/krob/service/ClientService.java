@@ -17,23 +17,23 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Client create(Client client){
+    public Client create(Client client) {
         return clientRepository.save(client);
     }
 
-    public void deleteById(String clientId){
+    public void deleteById(String clientId) {
         clientRepository.deleteById(clientId);
     }
 
-    public boolean existsByUserId(String userId){
+    public boolean existsByUserId(String userId) {
         return clientRepository.existsByUserId(userId);
     }
 
-    public Optional<Client> getById(String clientId){
+    public Optional<Client> getById(String clientId) {
         return clientRepository.findById(clientId);
     }
 
-    public Optional<Client> getByUserId(String userId){
+    public Optional<Client> getByUserId(String userId) {
         return clientRepository.findByUserId(userId);
     }
 }

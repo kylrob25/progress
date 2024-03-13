@@ -1,9 +1,6 @@
 package me.krob.controller;
 
-import me.krob.model.Client;
-import me.krob.model.Role;
 import me.krob.model.Trainer;
-import me.krob.model.User;
 import me.krob.service.ClientService;
 import me.krob.service.TrainerService;
 import me.krob.service.UserService;
@@ -32,13 +29,13 @@ public class TrainerController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Trainer trainer) {
         String userId = trainer.getUserId();
-        if (userId != null){
+        if (userId != null) {
             userService.getById(userId).map(user -> {
-                trainer.setUsername(user.getUsername());
-                return user.getId();
-            })
+                        trainer.setUsername(user.getUsername());
+                        return user.getId();
+                    })
                     .filter(trainerService::notExistsByUserId)
-                    .map(s-> ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(trainer)))
+                    .map(s -> ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(trainer)))
                     .orElseGet(() -> ResponseEntity.notFound().build());
         }
         return ResponseEntity.notFound().build();
@@ -109,7 +106,7 @@ public class TrainerController {
     }
 
     @GetMapping("/{trainerId}/clients")
-    public ResponseEntity<Set<String>> getClients(@PathVariable String trainerId){
+    public ResponseEntity<Set<String>> getClients(@PathVariable String trainerId) {
         return trainerService.getClients(trainerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());

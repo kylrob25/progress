@@ -8,7 +8,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.time.Instant;
 
 @Document(collection = "messages")
-@Getter @Setter
+@Getter
+@Setter
 public class Message {
 
     @Id

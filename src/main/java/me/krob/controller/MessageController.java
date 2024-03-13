@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
-import java.util.logging.Logger;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
@@ -47,16 +46,16 @@ public class MessageController {
     }
 
     @DeleteMapping("/{messageId}")
-    public ResponseEntity<?> delete(@PathVariable String messageId){
+    public ResponseEntity<?> delete(@PathVariable String messageId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 
         return messageService.getById(messageId)
                 .filter(message -> message.getSenderId().equals(userDetails.getId()))
                 .map(message -> {
-            messageService.deleteById(messageId);
-            conversationService.removeMessageId(message.getConversationId(), messageId);
-            return ResponseEntity.ok().build();
-        }).orElseGet(() -> ResponseEntity.status(HttpStatus.FORBIDDEN).build());
+                    messageService.deleteById(messageId);
+                    conversationService.removeMessageId(message.getConversationId(), messageId);
+                    return ResponseEntity.ok().build();
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.FORBIDDEN).build());
     }
- }
+}

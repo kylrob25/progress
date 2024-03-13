@@ -1,18 +1,16 @@
 package me.krob.service;
 
-import me.krob.model.Role;
 import me.krob.model.Trainer;
 import me.krob.model.User;
 import me.krob.repository.TrainerRepository;
 import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class TrainerService {
@@ -89,7 +87,9 @@ public class TrainerService {
         return trainerRepository.findByUsername(trainerId);
     }
 
-    /** Client Ids **/
+    /**
+     * Client Ids
+     **/
 
     public void addClientId(String trainerId, String clientId) {
         mongoUtil.addToSet(trainerId, "clientIds", clientId, User.class);
@@ -103,7 +103,7 @@ public class TrainerService {
         return trainerRepository.findById(trainerId).map(user -> user.getClientIds().contains(clientId));
     }
 
-    public Optional<Set<String>> getClients(String trainerId){
+    public Optional<Set<String>> getClients(String trainerId) {
         return trainerRepository.findById(trainerId).map(Trainer::getClientIds);
     }
 }
