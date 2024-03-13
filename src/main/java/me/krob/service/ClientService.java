@@ -17,6 +17,13 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
+    public Client create(String trainerId, String userId) {
+        Client client = new Client();
+        client.setUserId(userId);
+        client.setTrainerId(trainerId);
+        return clientRepository.save(client);
+    }
+
     public Client create(Client client) {
         return clientRepository.save(client);
     }

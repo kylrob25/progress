@@ -1,5 +1,6 @@
 package me.krob.controller;
 
+import me.krob.model.Client;
 import me.krob.model.Trainer;
 import me.krob.service.ClientService;
 import me.krob.service.TrainerService;
@@ -120,14 +121,29 @@ public class TrainerController {
 
     @PostMapping("/{trainerId}/request/{userId}")
     public ResponseEntity<?> acceptClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
-        // TODO:
-        return ResponseEntity.ok().build();
+        return trainerService.getRequestIds(trainerId).map(ids -> {
+            if (ids.contains(userId)) {
+                Client client = clientService.create(trainerId, userId);
+                trainerService.removeRequestId(trainerId, userId);
+                trainerService.addClientId(trainerId, client.getId());
+                return ResponseEntity.ok().build();
+            }
+            return ResponseEntity.notFound().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{trainerId}/request/{userId}")
     public ResponseEntity<?> denyClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
-        // TODO:
-        return ResponseEntity.ok().build();
+        return trainerService.getRequestIds(trainerId).map(ids -> {
+            if (ids.contains(userId)) {
+                return clientService.getByUserId(userId).map(Client::getId).map(id -> {
+                    trainerService.removeClientId(trainerId, id);
+                    clientService.deleteById(id);
+                    return ResponseEntity.ok().build();
+                }).orElseGet(() -> ResponseEntity.notFound().build());
+            }
+            return ResponseEntity.notFound().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{trainerId}/request")
