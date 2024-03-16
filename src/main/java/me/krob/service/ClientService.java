@@ -1,7 +1,7 @@
 package me.krob.service;
 
 import me.krob.model.Client;
-import me.krob.model.Payment;
+import me.krob.model.User;
 import me.krob.repository.ClientRepository;
 import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,10 @@ public class ClientService {
     @Autowired
     private ClientRepository clientRepository;
 
-    public Client create(String trainerId, String userId) {
+    public Client create(String trainerId, User user) {
         Client client = new Client();
-        client.setUserId(userId);
+        client.setUsername(user.getUsername());
+        client.setUserId(user.getId());
         client.setTrainerId(trainerId);
         return clientRepository.save(client);
     }

@@ -40,14 +40,19 @@ public class TokenFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    Logger.getGlobal().info(((UserDetailsImpl) authentication.getPrincipal()).getUsername());
-
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (Exception exception) {
                     Logger.getGlobal().info("Failed in setting user authentication: " + exception.getMessage());
                 }
+            } else {
+                if (!request.getRequestURI().equals("api/auth/login")) {
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Unauthorized");
+                    return;
+                }
             }
         }
+
+        Logger.getGlobal().info("Response: " + response.getStatus());
 
         filterChain.doFilter(request, response);
     }

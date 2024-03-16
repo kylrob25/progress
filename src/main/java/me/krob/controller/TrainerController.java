@@ -1,6 +1,7 @@
 package me.krob.controller;
 
 import me.krob.model.Client;
+import me.krob.model.client.ClientRequest;
 import me.krob.model.Trainer;
 import me.krob.service.ClientService;
 import me.krob.service.TrainerService;
@@ -11,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000", maxAge = 3600)
 @RestController
@@ -107,9 +110,22 @@ public class TrainerController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/{trainerId}/clients")
+    @Deprecated
+    @GetMapping("/{trainerId}/clientsIds")
     public ResponseEntity<Set<String>> getClientIds(@PathVariable String trainerId) {
         return trainerService.getClients(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{trainerId}/clients")
+    public ResponseEntity<Set<Client>> getClients(@PathVariable String trainerId) {
+        return trainerService.getClients(trainerId)
+                .map(ids -> ids.stream()
+                        .map(id -> clientService.getById(id))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .collect(Collectors.toSet()))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -124,10 +140,12 @@ public class TrainerController {
     public ResponseEntity<?> acceptClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         return trainerService.getRequestIds(trainerId).map(ids -> {
             if (ids.contains(userId)) {
-                Client client = clientService.create(trainerId, userId);
-                trainerService.removeRequestId(trainerId, userId);
-                trainerService.addClientId(trainerId, client.getId());
-                return ResponseEntity.ok().build();
+                return userService.getById(userId).map(user -> {
+                    Client client = clientService.create(trainerId, user);
+                    trainerService.removeRequestId(trainerId, userId);
+                    trainerService.addClientId(trainerId, client.getId());
+                    return ResponseEntity.ok().build();
+                }).orElseGet(() -> ResponseEntity.notFound().build());
             }
             return ResponseEntity.notFound().build();
         }).orElseGet(() -> ResponseEntity.notFound().build());
@@ -147,9 +165,23 @@ public class TrainerController {
         }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/{trainerId}/requests")
-    public ResponseEntity<Set<String>> getClientRequests(@PathVariable String trainerId) {
+    @Deprecated
+    @GetMapping("/{trainerId}/requestIds")
+    public ResponseEntity<Set<String>> getClientRequestIds(@PathVariable String trainerId) {
         return trainerService.getRequestIds(trainerId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{trainerId}/requests")
+    public ResponseEntity<Set<ClientRequest>> getClientRequests(@PathVariable String trainerId) {
+        return trainerService.getRequestIds(trainerId)
+                .map(ids -> ids.stream()
+                        .map(id -> userService.getById(id))
+                        .filter(Optional::isPresent)
+                        .map(Optional::get)
+                        .map(user -> new ClientRequest(user.getId(), user.getUsername()))
+                        .collect(Collectors.toSet()))
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
