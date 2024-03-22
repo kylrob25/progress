@@ -1,6 +1,6 @@
 package me.krob.repository;
 
-import me.krob.model.Client;
+import me.krob.model.client.Client;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.Optional;

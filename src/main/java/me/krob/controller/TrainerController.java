@@ -1,6 +1,7 @@
 package me.krob.controller;
 
-import me.krob.model.Client;
+import me.krob.model.Role;
+import me.krob.model.client.Client;
 import me.krob.model.client.ClientRequest;
 import me.krob.model.Trainer;
 import me.krob.service.ClientService;
@@ -36,6 +37,7 @@ public class TrainerController {
         if (userId != null) {
             userService.getById(userId).map(user -> {
                         trainer.setUsername(user.getUsername());
+                        userService.addRole(userId, Role.TRAINER);
                         return user.getId();
                     })
                     .filter(trainerService::notExistsByUserId)

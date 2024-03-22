@@ -1,6 +1,6 @@
 package me.krob.service;
 
-import me.krob.model.Client;
+import me.krob.model.client.Client;
 import me.krob.model.User;
 import me.krob.repository.ClientRepository;
 import me.krob.util.MongoTemplateUtil;

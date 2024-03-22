@@ -1,4 +1,4 @@
-package me.krob.model;
+package me.krob.model.client;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -1,6 +1,7 @@
 package me.krob.controller;
 
-import me.krob.model.Client;
+import me.krob.model.Role;
+import me.krob.model.client.Client;
 import me.krob.model.Payment;
 import me.krob.service.ClientService;
 import me.krob.service.PaymentService;
@@ -30,6 +31,7 @@ public class ClientController {
     @Autowired
     private PaymentService paymentService;
 
+    @Deprecated
     @PostMapping
     public ResponseEntity<Client> create(@RequestBody Client client) {
         String userId = client.getUserId();
@@ -48,6 +50,7 @@ public class ClientController {
                     }
 
                     trainerService.addClientId(trainerId, client.getId());
+                    userService.addRole(userId, Role.CLIENT);
                     return ResponseEntity.ok(created);
                 }).orElseGet(() -> ResponseEntity.badRequest().build());
             }
@@ -55,8 +58,15 @@ public class ClientController {
         return ResponseEntity.notFound().build();
     }
 
-    @GetMapping("/userId/{userId}")
-    public ResponseEntity<Client> getClient(@PathVariable String userId) {
+    @GetMapping("/{clientId}")
+    public ResponseEntity<Client> getClient(@PathVariable String clientId) {
+        return clientService.getById(clientId)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/userid/{userId}")
+    public ResponseEntity<Client> getClientByUserId(@PathVariable String userId) {
         return clientService.getByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
