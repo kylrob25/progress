@@ -4,6 +4,7 @@ import me.krob.model.Role;
 import me.krob.model.client.Client;
 import me.krob.model.client.ClientRequest;
 import me.krob.model.Trainer;
+import me.krob.model.client.ClientUpdate;
 import me.krob.service.ClientService;
 import me.krob.service.TrainerService;
 import me.krob.service.UserService;
@@ -194,4 +195,5 @@ public class TrainerController {
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
+
 }

@@ -2,10 +2,12 @@ package me.krob.model;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.krob.service.PaymentService;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Document(collection = "payments")
 @Getter
@@ -23,4 +25,8 @@ public class Payment {
     private double amount;
 
     private String link;
+
+    public Optional<Boolean> isComplete(PaymentService paymentService) {
+        return paymentService.isComplete(id);
+    }
 }

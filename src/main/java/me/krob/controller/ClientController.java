@@ -3,6 +3,7 @@ package me.krob.controller;
 import me.krob.model.Role;
 import me.krob.model.client.Client;
 import me.krob.model.Payment;
+import me.krob.model.client.ClientUpdate;
 import me.krob.service.ClientService;
 import me.krob.service.PaymentService;
 import me.krob.service.TrainerService;
@@ -100,5 +101,15 @@ public class ClientController {
                 .map(Client::getPaymentIds)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{clientId}/update")
+    public ResponseEntity<?> updateClientDetails(@PathVariable String clientId, @RequestBody ClientUpdate clientUpdate) {
+        // TODO: Check if the authentication object is the trainer of the client using IDs
+        return clientService.getById(clientId).map(client -> {
+            clientService.updateCalories(clientId, clientUpdate.getCalories());
+            clientService.updateWeight(clientId, clientUpdate.getWeight());
+            return ResponseEntity.ok().build();
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
