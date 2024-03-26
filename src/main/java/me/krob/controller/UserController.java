@@ -2,6 +2,7 @@ package me.krob.controller;
 
 import me.krob.model.Role;
 import me.krob.model.User;
+import me.krob.model.auth.AuthResponse;
 import me.krob.security.service.UserDetailsImpl;
 import me.krob.service.UserService;
 import me.krob.util.MongoTemplateUtil;
@@ -38,9 +39,9 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}")
-    public ResponseEntity<?> delete(@PathVariable String userId) {
+    public ResponseEntity<AuthResponse> delete(@PathVariable String userId) {
         userService.delete(userId);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Attempted to delete User entity."));
     }
 
     @GetMapping
@@ -83,26 +84,26 @@ public class UserController {
     }
 
     @PutMapping("/{userId}/roles/{role}")
-    public ResponseEntity<User> addRole(@PathVariable String userId, @PathVariable Role role) {
+    public ResponseEntity<AuthResponse> addRole(@PathVariable String userId, @PathVariable Role role) {
         userService.addRole(userId, role);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Attempted to add role to User entity."));
     }
 
     @DeleteMapping("/{userId}/roles/{role}")
-    public ResponseEntity<User> removeRole(@PathVariable String userId, @PathVariable Role role) {
+    public ResponseEntity<AuthResponse> removeRole(@PathVariable String userId, @PathVariable Role role) {
         userService.removeRole(userId, role);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Attempted to remove role from User entity."));
     }
 
     @PutMapping("/{userId}/conversation")
-    public ResponseEntity<User> addConversationId(@PathVariable String userId, @RequestBody String conversationId) {
+    public ResponseEntity<AuthResponse> addConversationId(@PathVariable String userId, @RequestBody String conversationId) {
         mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Attempted to add conversation ID to the User entity."));
     }
 
     @DeleteMapping("/{userId}/conversation")
-    public ResponseEntity<?> clearConversationIds(@PathVariable String userId) {
+    public ResponseEntity<AuthResponse> clearConversationIds(@PathVariable String userId) {
         mongoUtil.set(userId, "conversationIds", new Set[0], User.class);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Attempted to clear conversation IDs from the User entity."));
     }
 }
