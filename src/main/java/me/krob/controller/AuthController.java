@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-    private static final String CLEAN_COOKIE_HEADER = "%s; %s";
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -67,11 +66,13 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new AuthResponse("An account with that username already exists."));
         }
 
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new AuthResponse("An account with that email already exists."));
         }
 
         User user = new User();
@@ -84,7 +85,7 @@ public class AuthController {
 
         userRepository.save(user);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok().body(new AuthResponse("Successfully registered the new user."));
     }
 
     @PostMapping("/refresh")
