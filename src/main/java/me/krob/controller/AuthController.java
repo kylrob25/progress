@@ -43,6 +43,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        if (loginRequest.getUsername() == null ||
+                loginRequest.getPassword() == null) {
+            return ResponseEntity.badRequest().body(new AuthResponse("One or more required field is missing."));
+        }
+
+        if (loginRequest.getUsername().isEmpty() ||
+                loginRequest.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(new AuthResponse("One or more required field is empty."));
+        }
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
@@ -65,6 +75,22 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest registerRequest) {
+        if (registerRequest.getUsername() == null ||
+                registerRequest.getSurname() == null ||
+                registerRequest.getForename() == null ||
+                registerRequest.getEmail() == null ||
+                registerRequest.getPassword() == null) {
+            return ResponseEntity.badRequest().body(new AuthResponse("One or more required field is missing."));
+        }
+
+        if (registerRequest.getUsername().isEmpty() ||
+                registerRequest.getSurname().isEmpty()||
+                registerRequest.getForename().isEmpty() ||
+                registerRequest.getEmail().isEmpty() ||
+                registerRequest.getPassword().isEmpty()) {
+            return ResponseEntity.badRequest().body(new AuthResponse("One or more required field is empty."));
+        }
+
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(new AuthResponse("An account with that username already exists."));
