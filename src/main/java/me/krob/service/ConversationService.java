@@ -43,6 +43,10 @@ public class ConversationService {
         return conversationRepository.findByIdIn(conversationIds);
     }
 
+    public boolean exists(String conversationId) {
+        return conversationRepository.existsById(conversationId);
+    }
+
     /**
      * Participant IDs
      **/

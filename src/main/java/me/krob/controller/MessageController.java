@@ -38,7 +38,6 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Message message) {
         message.setTimestamp(Instant.now());
-
         Message m = messageService.create(message);
         conversationService.addMessageId(m.getConversationId(), m.getId());
         conversationService.setLastMessageId(m.getConversationId(), m.getId());

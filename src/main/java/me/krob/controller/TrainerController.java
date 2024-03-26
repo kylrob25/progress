@@ -1,6 +1,7 @@
 package me.krob.controller;
 
 import me.krob.model.Role;
+import me.krob.model.auth.AuthResponse;
 import me.krob.model.client.Client;
 import me.krob.model.client.ClientRequest;
 import me.krob.model.Trainer;
@@ -35,17 +36,28 @@ public class TrainerController {
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Trainer trainer) {
         String userId = trainer.getUserId();
-        if (userId != null) {
-            userService.getById(userId).map(user -> {
-                        trainer.setUsername(user.getUsername());
-                        userService.addRole(userId, Role.TRAINER);
-                        return user.getId();
-                    })
-                    .filter(trainerService::notExistsByUserId)
-                    .map(s -> ResponseEntity.status(HttpStatus.CREATED).body(trainerService.create(trainer)))
-                    .orElseGet(() -> ResponseEntity.notFound().build());
+
+        if (userId == null || userId.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new AuthResponse("Does not contain User ID."));
         }
-        return ResponseEntity.notFound().build();
+
+        if (!userService.exists(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new AuthResponse("Cannot find User entity with that ID."));
+        }
+
+        if (trainerService.existsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new AuthResponse("Trainer already exists for this User entity."));
+        }
+
+        return userService.getById(userId).map(user -> {
+            trainer.setUsername(user.getUsername());
+            userService.addRole(userId, Role.TRAINER);
+            Trainer created = trainerService.create(trainer);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @PutMapping("/{trainerId}")

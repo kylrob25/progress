@@ -1,5 +1,6 @@
 package me.krob.util;
 
+import com.mongodb.client.result.UpdateResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -13,21 +14,21 @@ public class MongoTemplateUtil {
     @Autowired
     private MongoTemplate mongoTemplate;
 
-    public void set(String id, String key, Object value, Class<?> entityClass) {
+    public UpdateResult set(String id, String key, Object value, Class<?> entityClass) {
         Query query = new Query(Criteria.where("id").is(id));
         Update update = new Update().set(key, value);
-        mongoTemplate.updateFirst(query, update, entityClass);
+        return mongoTemplate.updateFirst(query, update, entityClass);
     }
 
-    public void addToSet(String id, String key, Object value, Class<?> entityClass) {
+    public UpdateResult addToSet(String id, String key, Object value, Class<?> entityClass) {
         Query query = new Query(Criteria.where("id").is(id));
         Update update = new Update().addToSet(key, value);
-        mongoTemplate.updateFirst(query, update, entityClass);
+        return mongoTemplate.updateFirst(query, update, entityClass);
     }
 
-    public void pull(String id, String key, Object value, Class<?> entityClass) {
+    public UpdateResult pull(String id, String key, Object value, Class<?> entityClass) {
         Query query = new Query(Criteria.where("id").is(id));
         Update update = new Update().pull(key, value);
-        mongoTemplate.updateFirst(query, update, entityClass);
+        return mongoTemplate.updateFirst(query, update, entityClass);
     }
 }

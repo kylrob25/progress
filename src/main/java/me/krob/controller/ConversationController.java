@@ -75,16 +75,13 @@ public class ConversationController {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping("{conversationId}/add")
-    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @RequestBody String username) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-
+    @PutMapping("/{conversationId}/add/{username}")
+    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @PathVariable String username) {
         return conversationService.getById(conversationId)
-                .filter(conversation -> conversation.isCreator(userDetails.getId()))
                 .flatMap(conversation -> userService.getByUsername(username)
                         .map(user -> {
                             Logger.getGlobal().info(username);
+                            userService.addConversation(user.getId(), conversationId);
                             conversationService.addParticipantId(conversationId, user.getId());
                             conversationService.addParticipantName(conversationId, username);
                             return ResponseEntity.ok().build();

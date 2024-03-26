@@ -1,9 +1,11 @@
 package me.krob.controller;
 
+import com.mongodb.client.result.UpdateResult;
 import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.model.auth.AuthResponse;
 import me.krob.security.service.UserDetailsImpl;
+import me.krob.service.ConversationService;
 import me.krob.service.UserService;
 import me.krob.util.MongoTemplateUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,9 @@ public class UserController {
     private UserService userService;
 
     @Autowired
+    private ConversationService conversationService;
+
+    @Autowired
     private MongoTemplateUtil mongoUtil;
 
     @PostMapping
@@ -34,8 +39,10 @@ public class UserController {
 
     @PutMapping("/{userId}")
     public ResponseEntity<User> update(@PathVariable String userId, @RequestBody User user) {
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         User updated = userService.update(userId, user);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping("/{userId}")
@@ -85,25 +92,40 @@ public class UserController {
 
     @PutMapping("/{userId}/roles/{role}")
     public ResponseEntity<AuthResponse> addRole(@PathVariable String userId, @PathVariable Role role) {
-        userService.addRole(userId, role);
-        return ResponseEntity.ok().body(new AuthResponse("Attempted to add role to User entity."));
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        long updated = userService.addRole(userId, role);
+        if (updated > 0)
+            return ResponseEntity.ok().body(new AuthResponse("Successfully added role to User entity."));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Failed to update User entity."));
     }
 
     @DeleteMapping("/{userId}/roles/{role}")
     public ResponseEntity<AuthResponse> removeRole(@PathVariable String userId, @PathVariable Role role) {
-        userService.removeRole(userId, role);
-        return ResponseEntity.ok().body(new AuthResponse("Attempted to remove role from User entity."));
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        long updated = userService.removeRole(userId, role);
+        if (updated > 0) return ResponseEntity.ok().body(new AuthResponse("Successfully removed role from User entity."));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Failed to update User entity."));
     }
 
-    @PutMapping("/{userId}/conversation")
-    public ResponseEntity<AuthResponse> addConversationId(@PathVariable String userId, @RequestBody String conversationId) {
-        mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
-        return ResponseEntity.ok().body(new AuthResponse("Attempted to add conversation ID to the User entity."));
+    @PutMapping("/{userId}/conversation/{conversationId}")
+    public ResponseEntity<AuthResponse> addConversationId(@PathVariable String userId, @PathVariable String conversationId) {
+        if (!conversationService.exists(conversationId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Failed to find Conversation ID."));
+        UpdateResult result = mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
+        if (result.getModifiedCount() > 0)
+            return ResponseEntity.ok().body(new AuthResponse("Successfully added conversation ID to User entity."));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Failed to update User entity."));
     }
 
     @DeleteMapping("/{userId}/conversation")
     public ResponseEntity<AuthResponse> clearConversationIds(@PathVariable String userId) {
-        mongoUtil.set(userId, "conversationIds", new Set[0], User.class);
-        return ResponseEntity.ok().body(new AuthResponse("Attempted to clear conversation IDs from the User entity."));
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        UpdateResult result = mongoUtil.set(userId, "conversationIds", new Set[0], User.class);
+        if (result.getModifiedCount() > 0)
+            return ResponseEntity.ok().body(new AuthResponse("Successfully cleared conversation IDs from the User entity."));
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Failed to update User entity."));
     }
 }

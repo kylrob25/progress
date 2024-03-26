@@ -17,6 +17,7 @@ public class Message {
 
     private String conversationId;
     private String senderId;
+    private String sender;
     private String text;
     private Instant timestamp;
 }

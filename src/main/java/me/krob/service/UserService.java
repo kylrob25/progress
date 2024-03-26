@@ -1,5 +1,6 @@
 package me.krob.service;
 
+import com.mongodb.client.result.UpdateResult;
 import me.krob.model.Role;
 import me.krob.model.User;
 import me.krob.repository.UserRepository;
@@ -71,12 +72,14 @@ public class UserService {
      * Roles
      **/
 
-    public void addRole(String userId, Role role) {
-        mongoUtil.addToSet(userId, "roles", role, User.class);
+    public long addRole(String userId, Role role) {
+        UpdateResult result = mongoUtil.addToSet(userId, "roles", role, User.class);
+        return result.getModifiedCount();
     }
 
-    public void removeRole(String userId, Role role) {
-        mongoUtil.pull(userId, "roles", role, User.class);
+    public long removeRole(String userId, Role role) {
+        UpdateResult result = mongoUtil.pull(userId, "roles", role, User.class);
+        return result.getModifiedCount();
     }
 
     public Optional<Boolean> hasRole(String userId, Role role) {
@@ -86,11 +89,13 @@ public class UserService {
     /**
      * Conversation
      **/
-    public void addConversation(String userId, String conversationId) {
-        mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
+    public long addConversation(String userId, String conversationId) {
+        UpdateResult result = mongoUtil.addToSet(userId, "conversationIds", conversationId, User.class);
+        return result.getModifiedCount();
     }
 
-    public void removeConversation(String userId, String conversationId) {
-        mongoUtil.pull(userId, "conversationIds", conversationId, User.class);
+    public long removeConversation(String userId, String conversationId) {
+        UpdateResult result = mongoUtil.pull(userId, "conversationIds", conversationId, User.class);
+        return result.getModifiedCount();
     }
 }
