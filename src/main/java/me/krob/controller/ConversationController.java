@@ -1,6 +1,7 @@
 package me.krob.controller;
 
 import me.krob.model.User;
+import me.krob.model.auth.AuthResponse;
 import me.krob.model.message.Conversation;
 import me.krob.model.message.Message;
 import me.krob.security.service.UserDetailsImpl;
@@ -35,18 +36,45 @@ public class ConversationController {
     private UserService userService;
 
     @PostMapping
-    public ResponseEntity<Conversation> create(@RequestBody Conversation conversation) {
-        userService.getById(conversation.getCreatorId()).ifPresent(user -> {
+    public ResponseEntity<?> create(@RequestBody Conversation conversation) {
+        String conversationId = conversation.getId();
+
+        if (conversationId == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Missing Conversation ID."));
+        }
+
+        String userId = conversation.getCreatorId();
+
+        if (userId == null || userService.exists(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        }
+
+        userService.getById(userId).ifPresent(user -> {
+            String username = user.getUsername();
+
             conversation.setCreatorId(user.getId());
-            conversation.setTitle(user.getUsername() + "'s Conversation");
-            conversation.getParticipantNames().add(user.getUsername());
+            conversation.setTitle(username + "'s Conversation");
+            conversation.getParticipantNames().add(username);
         });
 
-        conversation.getParticipantIds().stream()
-                .filter(id -> userService.exists(id))
-                .forEach(id -> userService.addConversation(id, conversation.getId()));
+        Set<String> participantIds = conversation.getParticipantIds();
 
-        return ResponseEntity.ok(conversationService.create(conversation));
+        if (participantIds.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("No participants included."));
+        }
+
+        for (String participantId: participantIds) {
+            if (!userService.exists(participantId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+            }
+
+            long updated = userService.addConversation(participantId, conversationId);
+            if (updated < 1) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("One or more participant is already in this Conversation entity."));
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(conversationService.create(conversation));
     }
 
     @DeleteMapping("/{conversationId}")
