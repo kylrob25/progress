@@ -1,5 +1,6 @@
 package me.krob.service;
 
+import com.mongodb.client.result.UpdateResult;
 import me.krob.model.message.Conversation;
 import me.krob.repository.ConversationRepository;
 import me.krob.util.MongoTemplateUtil;
@@ -51,12 +52,14 @@ public class ConversationService {
      * Participant IDs
      **/
 
-    public void addParticipantId(String conversationId, String participantId) {
-        mongoUtil.addToSet(conversationId, "participantIds", participantId, Conversation.class);
+    public long addParticipantId(String conversationId, String participantId) {
+        UpdateResult result = mongoUtil.addToSet(conversationId, "participantIds", participantId, Conversation.class);
+        return result.getModifiedCount();
     }
 
-    public void removeParticipantId(String conversationId, String participantId) {
-        mongoUtil.pull(conversationId, "participantIds", participantId, Conversation.class);
+    public long removeParticipantId(String conversationId, String participantId) {
+        UpdateResult result = mongoUtil.pull(conversationId, "participantIds", participantId, Conversation.class);
+        return result.getModifiedCount();
     }
 
     public Optional<Set<String>> getParticipantIds(String conversationId) {
@@ -73,12 +76,14 @@ public class ConversationService {
      * Participant Names
      **/
 
-    public void addParticipantName(String conversationId, String participantName) {
-        mongoUtil.addToSet(conversationId, "participantNames", participantName, Conversation.class);
+    public long addParticipantName(String conversationId, String participantName) {
+        UpdateResult result = mongoUtil.addToSet(conversationId, "participantNames", participantName, Conversation.class);
+        return result.getModifiedCount();
     }
 
-    public void removeParticipantName(String conversationId, String participantName) {
-        mongoUtil.pull(conversationId, "participantNames", participantName, Conversation.class);
+    public long removeParticipantName(String conversationId, String participantName) {
+        UpdateResult result = mongoUtil.pull(conversationId, "participantNames", participantName, Conversation.class);
+        return result.getModifiedCount();
     }
 
     public Optional<Set<String>> getParticipantNames(String conversationId) {
