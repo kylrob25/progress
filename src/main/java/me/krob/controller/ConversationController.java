@@ -37,15 +37,9 @@ public class ConversationController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody Conversation conversation) {
-        String conversationId = conversation.getId();
-
-        if (conversationId == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Missing Conversation ID."));
-        }
-
         String userId = conversation.getCreatorId();
 
-        if (userId == null || userService.exists(userId)) {
+        if (userId == null || !userService.exists(userId)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
         }
 
@@ -63,6 +57,9 @@ public class ConversationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("No participants included."));
         }
 
+        Conversation created = conversationService.create(conversation);
+        String conversationId = created.getId();
+
         for (String participantId: participantIds) {
             if (!userService.exists(participantId)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
@@ -74,7 +71,77 @@ public class ConversationController {
             }
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(conversationService.create(conversation));
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/{conversationId}/add/{username}")
+    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @PathVariable String username) {
+        if (conversationId == null || !conversationService.exists(conversationId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Conversation entity with that ID."));
+        }
+
+        if (username == null || !userService.existsByUsername(username)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that username."));
+        }
+
+        Optional<User> userOpt = userService.getByUsername(username);
+        if (userOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that username."));
+        }
+
+        User user = userOpt.get();
+        String userId = user.getId();
+
+        long conv = userService.addConversation(userId, conversationId);
+        if (conv < 1) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Failed to add Conversation ID to User entity."));
+        }
+
+        long id = conversationService.addParticipantId(conversationId, userId);
+        if (id < 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to add User ID to Conversation entity."));
+        }
+
+        long name = conversationService.addParticipantName(conversationId, username);
+        if (name < 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to add User username to Conversation entity."));
+        }
+
+        return ResponseEntity.ok(new AuthResponse("Added User to Conversation entity."));
+    }
+
+    @DeleteMapping("/{conversationId}/leave/{userId}")
+    public ResponseEntity<?> leave(@PathVariable String conversationId, @PathVariable String userId) {
+        if (conversationId == null || !conversationService.exists(conversationId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Conversation entity with that ID."));
+        }
+
+        if (userId == null || !userService.exists(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        }
+
+        Optional<User> userOptional = userService.getById(userId);
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        }
+        User user = userOptional.get();
+
+        long ids = conversationService.removeParticipantId(conversationId, user.getId());
+        if (ids < 1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("User does not exist in Conversation entity."));
+        }
+
+        long names = conversationService.removeParticipantName(conversationId, user.getUsername());
+        if (names < 1) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("User does not exist in Conversation entity."));
+        }
+
+        long removed = userService.removeConversation(userId, conversationId);
+        if (removed < 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to remove participant from Conversation entity."));
+        }
+
+        return ResponseEntity.ok(new AuthResponse("Removed participant from Conversation entity."));
     }
 
     @DeleteMapping("/{conversationId}")
@@ -93,63 +160,6 @@ public class ConversationController {
         conversationService.deleteById(conversationId);
         return ResponseEntity.ok().body(new AuthResponse("Deleted Conversation entity."));
     }
-
-    @DeleteMapping("/{conversationId}/leave/{userId}")
-    public ResponseEntity<?> leave(@PathVariable String conversationId, String userId) {
-        if (conversationId == null || !conversationService.exists(conversationId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Conversation entity with that ID."));
-        }
-
-        if (userId == null || !userService.exists(userId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
-        }
-
-        conversationService.getById(conversationId).ifPresent(conversation -> {
-            userService.getById(userId).map(user -> {
-                long names = conversationService.removeParticipantName(conversationId, user.getUsername());
-                if (names < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to remove participant name from Conversation entity."));
-
-                long ids = conversationService.removeParticipantId(conversationId, user.getId());
-                if (ids < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to remove participant ID from Conversation entity."));
-
-                long removed = userService.removeConversation(userId, conversationId);
-                if (removed < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to remove participant from Conversion entity."));
-
-                return ResponseEntity.ok(new AuthResponse("Removed participant from Conversation entity."));
-            }).orElseGet(() ->  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID.")));
-        });
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Something went wrong when removing participant from Conversation entity."));
-    }
-
-    @PutMapping("/{conversationId}/add/{username}")
-    public ResponseEntity<?> addParticipant(@PathVariable String conversationId, @PathVariable String username) {
-        if (conversationId == null || !conversationService.exists(conversationId)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Conversation entity with that ID."));
-        }
-
-        if (username == null || !userService.existsByUsername(username)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
-        }
-
-        conversationService.getById(conversationId).ifPresent(conversation -> {
-            userService.getByUsername(username).map(User::getId).map(userId -> {
-                long conv = userService.addConversation(userId, conversationId);
-                if (conv < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to add Conversation ID to User entity."));
-
-                long id = conversationService.addParticipantId(conversationId, userId);
-                if (id < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to add User ID to Conversation entity."));
-
-                long name = conversationService.addParticipantName(conversationId, username);
-                if (name < 1) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Failed to add User username to Conversation entity."));
-
-                return ResponseEntity.ok(new AuthResponse("Added User to Conversation entity."));
-            }).orElseGet(() ->  ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID.")));
-        });
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Something went wrong when adding participant to Conversation entity."));
-    }
-
 
     @GetMapping
     public List<Conversation> getAll() {
