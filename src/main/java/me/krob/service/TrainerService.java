@@ -1,5 +1,6 @@
 package me.krob.service;
 
+import com.mongodb.client.result.UpdateResult;
 import me.krob.model.Payment;
 import me.krob.model.Trainer;
 import me.krob.model.User;
@@ -92,12 +93,14 @@ public class TrainerService {
      * Client Ids
      */
 
-    public void addClientId(String trainerId, String clientId) {
-        mongoUtil.addToSet(trainerId, "clientIds", clientId, Trainer.class);
+    public long addClientId(String trainerId, String clientId) {
+        UpdateResult result = mongoUtil.addToSet(trainerId, "clientIds", clientId, Trainer.class);
+        return result.getModifiedCount();
     }
 
-    public void removeClientId(String trainerId, String clientId) {
-        mongoUtil.pull(trainerId, "clientIds", clientId, Trainer.class);
+    public long removeClientId(String trainerId, String clientId) {
+        UpdateResult result = mongoUtil.pull(trainerId, "clientIds", clientId, Trainer.class);
+        return result.getModifiedCount();
     }
 
     public Optional<Boolean> hasClientId(String trainerId, String clientId) {
@@ -111,12 +114,14 @@ public class TrainerService {
     /**
      * Client Request Ids
      */
-    public void addRequestId(String trainerId, String userId) {
-        mongoUtil.addToSet(trainerId, "clientRequestIds", userId, Trainer.class);
+    public long addRequestId(String trainerId, String userId) {
+        UpdateResult result = mongoUtil.addToSet(trainerId, "clientRequestIds", userId, Trainer.class);
+        return result.getModifiedCount();
     }
 
-    public void removeRequestId(String trainerId, String userId) {
-        mongoUtil.pull(trainerId, "clientRequestIds", userId, Trainer.class);
+    public long removeRequestId(String trainerId, String userId) {
+        UpdateResult result = mongoUtil.pull(trainerId, "clientRequestIds", userId, Trainer.class);
+        return result.getModifiedCount();
     }
 
     public Optional<Boolean> hasRequestId(String trainerId, String userId) {

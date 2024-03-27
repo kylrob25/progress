@@ -47,6 +47,8 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<AuthResponse> delete(@PathVariable String userId) {
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         userService.delete(userId);
         return ResponseEntity.ok().body(new AuthResponse("Attempted to delete User entity."));
     }

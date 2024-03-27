@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Document(collection = "users")
@@ -22,5 +23,5 @@ public class User {
 
     private Set<Role> roles;
 
-    private Set<String> conversationIds;
+    private Set<String> conversationIds = new HashSet<>();
 }

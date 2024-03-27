@@ -61,19 +61,25 @@ public class TrainerController {
     }
 
     @PutMapping("/{trainerId}")
-    public ResponseEntity<Trainer> update(@PathVariable String trainerId, @RequestBody Trainer trainer) {
+    public ResponseEntity<?> update(@PathVariable String trainerId, @RequestBody Trainer trainer) {
+        if (!trainerService.exists(trainerId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Could not find Trainer entity with that ID."));
         Trainer updated = trainerService.update(trainerId, trainer);
-        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.notFound().build();
+        return updated != null ? ResponseEntity.ok(updated) : ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @DeleteMapping("/{trainerId}")
     public ResponseEntity<?> delete(@PathVariable String trainerId) {
+        if (!trainerService.exists(trainerId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Could not find Trainer entity with that ID."));
         trainerService.delete(trainerId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/userId/{userId}")
     public ResponseEntity<?> deleteByUserId(@PathVariable String userId) {
+        if (!trainerService.existsByUserId(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Could not find Trainer entity with that User ID."));
         trainerService.deleteByUserId(userId);
         return ResponseEntity.ok().build();
     }
@@ -84,7 +90,7 @@ public class TrainerController {
     }
 
     @GetMapping("/{trainerId}")
-    public ResponseEntity<Trainer> getById(@PathVariable String trainerId) {
+    public ResponseEntity<?> getById(@PathVariable String trainerId) {
         return trainerService.getById(trainerId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -147,8 +153,13 @@ public class TrainerController {
 
     @PutMapping("/{trainerId}/requests/{userId}")
     public ResponseEntity<?> addClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
-        trainerService.addRequestId(trainerId, userId);
-        return ResponseEntity.ok().build();
+        if (!trainerService.exists(trainerId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Trainer entity with that ID."));
+        if (!userService.exists(userId))
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
+        long updated = trainerService.addRequestId(trainerId, userId);
+        if (updated > 0) return ResponseEntity.ok().body(new AuthResponse("Added client request to Trainer entity."));
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Failed to add client request to Trainer entity."));
     }
 
     @PostMapping("/{trainerId}/requests/{userId}")
@@ -157,27 +168,32 @@ public class TrainerController {
             if (ids.contains(userId)) {
                 return userService.getById(userId).map(user -> {
                     Client client = clientService.create(trainerId, user);
-                    trainerService.removeRequestId(trainerId, userId);
-                    trainerService.addClientId(trainerId, client.getId());
-                    return ResponseEntity.ok().build();
-                }).orElseGet(() -> ResponseEntity.notFound().build());
+
+                    long removed = trainerService.removeRequestId(trainerId, userId);
+                    if(removed < 1) return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Cannot find request in Trainer entity with that ID."));
+
+                    long added = trainerService.addClientId(trainerId, client.getId());
+                    if (added < 1) return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Failed to add Client ID to Trainer entity."));
+
+                    return ResponseEntity.ok().body(new AuthResponse("Added Client ID to Trainer entity."));
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID.")));
             }
-            return ResponseEntity.notFound().build();
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find request in Trainer entity."));
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Trainer entity with that ID.")));
     }
 
     @DeleteMapping("/{trainerId}/requests/{userId}")
     public ResponseEntity<?> denyClientRequest(@PathVariable String trainerId, @PathVariable String userId) {
         return trainerService.getRequestIds(trainerId).map(ids -> {
             if (ids.contains(userId)) {
-                return clientService.getByUserId(userId).map(Client::getId).map(id -> {
-                    trainerService.removeClientId(trainerId, id);
-                    clientService.deleteById(id);
-                    return ResponseEntity.ok().build();
-                }).orElseGet(() -> ResponseEntity.notFound().build());
+                return userService.getById(userId).map(user -> {
+                    long removed = trainerService.removeRequestId(trainerId, userId);
+                    if (removed < 1) return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Cannot find request in Trainer entity with that ID."));
+                    return ResponseEntity.ok().body(new AuthResponse("Removed request from Trainer entity."));
+                }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID.")));
             }
-            return ResponseEntity.notFound().build();
-        }).orElseGet(() -> ResponseEntity.notFound().build());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find request in Trainer entity."));
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Trainer entity with that ID.")));
     }
 
     @Deprecated
@@ -189,16 +205,23 @@ public class TrainerController {
     }
 
     @GetMapping("/{trainerId}/requests")
-    public ResponseEntity<Set<ClientRequest>> getClientRequests(@PathVariable String trainerId) {
-        return trainerService.getRequestIds(trainerId)
-                .map(ids -> ids.stream()
-                        .map(id -> userService.getById(id))
-                        .filter(Optional::isPresent)
-                        .map(Optional::get)
-                        .map(user -> new ClientRequest(user.getId(), user.getUsername()))
-                        .collect(Collectors.toSet()))
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<?> getClientRequests(@PathVariable String trainerId) {
+        Optional<Set<String>> optionalIds = trainerService.getRequestIds(trainerId);
+
+        if (optionalIds.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new AuthResponse("Cannot find Trainer entity with that ID."));
+        }
+
+        Set<String> ids = optionalIds.get();
+        Set<ClientRequest> clientRequests = ids.stream()
+                .map(userService::getById)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .map(user -> new ClientRequest(user.getId(), user.getUsername()))
+                .collect(Collectors.toSet());
+
+        return ResponseEntity.ok(clientRequests);
     }
 
     @GetMapping("/{trainerId}/payments")
