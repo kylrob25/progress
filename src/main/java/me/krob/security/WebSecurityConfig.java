@@ -59,6 +59,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/roles/**").permitAll()
                         .requestMatchers("/api/trainer/**").permitAll()
                         .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/client/**").permitAll()
                         .requestMatchers("/api/message/**").permitAll()
                         .requestMatchers("/api/conversation/**").permitAll()
                         .anyRequest().authenticated()

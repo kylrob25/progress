@@ -1,5 +1,6 @@
 package me.krob.service;
 
+import com.mongodb.client.result.UpdateResult;
 import me.krob.model.client.Client;
 import me.krob.model.User;
 import me.krob.repository.ClientRepository;
@@ -35,6 +36,10 @@ public class ClientService {
         clientRepository.deleteById(clientId);
     }
 
+    public boolean exists(String clientId) {
+        return clientRepository.existsById(clientId);
+    }
+
     public boolean existsByUserId(String userId) {
         return clientRepository.existsByUserId(userId);
     }
@@ -47,12 +52,14 @@ public class ClientService {
         return clientRepository.findByUserId(userId);
     }
 
-    public void updateWeight(String clientId, int weight) {
-        mongoUtil.set(clientId, "weight", weight, Client.class);
+    public long updateWeight(String clientId, int weight) {
+        UpdateResult result = mongoUtil.set(clientId, "weight", weight, Client.class);
+        return result.getModifiedCount();
     }
 
-    public void updateCalories(String clientId, int calories) {
-        mongoUtil.set(clientId, "calories", calories, Client.class);
+    public long updateCalories(String clientId, int calories) {
+        UpdateResult result = mongoUtil.set(clientId, "calories", calories, Client.class);
+        return result.getModifiedCount();
     }
 
     /**

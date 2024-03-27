@@ -1,6 +1,7 @@
 package me.krob.controller;
 
 import me.krob.model.Role;
+import me.krob.model.auth.AuthResponse;
 import me.krob.model.client.Client;
 import me.krob.model.Payment;
 import me.krob.model.client.ClientUpdate;
@@ -34,33 +35,39 @@ public class ClientController {
 
     @Deprecated
     @PostMapping
-    public ResponseEntity<Client> create(@RequestBody Client client) {
+    public ResponseEntity<?> create(@RequestBody Client client) {
         String userId = client.getUserId();
 
-        if (userId != null && userService.exists(userId)
-                && !clientService.existsByUserId(userId)) {
-            String trainerId = client.getTrainerId();
-
-            if (trainerId != null && trainerService.exists(trainerId)) {
-                Client created = clientService.create(client);
-
-                trainerService.hasClientId(trainerId, client.getId()).map(has -> {
-                    if (has) {
-                        clientService.deleteById(created.getId());
-                        return ResponseEntity.status(HttpStatus.CONFLICT).build();
-                    }
-
-                    trainerService.addClientId(trainerId, client.getId());
-                    userService.addRole(userId, Role.CLIENT);
-                    return ResponseEntity.ok(created);
-                }).orElseGet(() -> ResponseEntity.badRequest().build());
-            }
+        if (userId == null || !userService.exists(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find User entity with that ID."));
         }
-        return ResponseEntity.notFound().build();
+
+        if (clientService.existsByUserId(userId)) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Client entity with that ID already exists."));
+        }
+
+        String trainerId = client.getTrainerId();
+
+        if (trainerId == null || !trainerService.exists(trainerId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Trainer entity with that ID."));
+        }
+
+        Client created = clientService.create(client);
+
+        return trainerService.hasClientId(trainerId, client.getId()).map(has -> {
+            if (has) {
+                clientService.deleteById(created.getId());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(new AuthResponse("Client entity with that ID already exists."));
+            }
+
+            trainerService.addClientId(trainerId, client.getId());
+            userService.addRole(userId, Role.CLIENT);
+            return ResponseEntity.ok(created);
+        }).orElseGet(() -> ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("Issue with Trainer entity.")));
     }
 
     @GetMapping("/{clientId}")
-    public ResponseEntity<Client> getClient(@PathVariable String clientId) {
+    public ResponseEntity<?> getClient(@PathVariable String clientId) {
         return clientService.getById(clientId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
@@ -71,6 +78,22 @@ public class ClientController {
         return clientService.getByUserId(userId)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/{clientId}/update")
+    public ResponseEntity<?> updateClientDetails(@PathVariable String clientId, @RequestBody ClientUpdate clientUpdate) {
+        if (!clientService.exists(clientId)){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new AuthResponse("Cannot find Client entity with that ID."));
+        }
+
+        long calories = clientService.updateCalories(clientId, clientUpdate.getCalories());
+        long weight = clientService.updateWeight(clientId, clientUpdate.getWeight());
+
+        if (calories < 1 && weight < 1) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse("No updates were made to the Client entity."));
+        }
+
+        return ResponseEntity.ok(new AuthResponse("Updated Client entity."));
     }
 
     @PutMapping("/{clientId}/payments")
@@ -101,15 +124,5 @@ public class ClientController {
                 .map(Client::getPaymentIds)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{clientId}/update")
-    public ResponseEntity<?> updateClientDetails(@PathVariable String clientId, @RequestBody ClientUpdate clientUpdate) {
-        // TODO: Check if the authentication object is the trainer of the client using IDs
-        return clientService.getById(clientId).map(client -> {
-            clientService.updateCalories(clientId, clientUpdate.getCalories());
-            clientService.updateWeight(clientId, clientUpdate.getWeight());
-            return ResponseEntity.ok().build();
-        }).orElseGet(() -> ResponseEntity.notFound().build());
     }
 }
